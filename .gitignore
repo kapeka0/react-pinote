@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.astro/
+.vercel/
+coverage/
+*.tsbuildinfo
+playwright-report/
+test-results/
+*.tgz
+packages/react-pinote/README.md
+packages/react-pinote/LICENSE

@@ -1,0 +1,58 @@
+{
+  "name": "react-pinote",
+  "version": "0.1.0",
+  "description": "Lightweight React annotations for coordinates and highlighted text.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kapeka0/react-pinote.git",
+    "directory": "packages/react-pinote"
+  },
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "scripts": {
+    "prepack": "pnpm build && node scripts/prepare-package.mjs",
+    "build": "vite build && tsc -p tsconfig.build.json",
+    "dev": "vite build --watch",
+    "size": "node scripts/check-size.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "peerDependencies": {
+    "react": ">=18 <20",
+    "react-dom": ">=18 <20"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "7.0.1",
+    "@testing-library/react": "16.3.3",
+    "@testing-library/user-event": "14.6.7",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "6.1.1",
+    "jsdom": "30.0.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-18": "npm:react@18.3.1",
+    "react-dom-18": "npm:react-dom@18.3.1",
+    "typescript": "6.0.3",
+    "magic-string": "1.2.3",
+    "vite": "8.2.2",
+    "vitest": "5.0.0"
+  }
+}

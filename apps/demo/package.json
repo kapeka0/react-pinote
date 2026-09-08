@@ -1,0 +1,24 @@
+{
+  "name": "@react-pinote/demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --host 127.0.0.1",
+    "build": "astro build",
+    "preview": "astro preview --host 127.0.0.1",
+    "typecheck": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/react": "6.0.5",
+    "astro": "7.3.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-pinote": "workspace:*"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "typescript": "6.0.3"
+  }
+}

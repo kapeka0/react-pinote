@@ -1,0 +1,113 @@
+/* Low-specificity defaults; public customization uses --pinote-* and data-slot. */
+.pn {
+  color-scheme: light dark;
+}
+.dark .pn,
+.pn[data-pinote-theme="dark"] {
+  color-scheme: dark;
+}
+.light .pn,
+.pn[data-pinote-theme="light"] {
+  color-scheme: light;
+}
+.pn-layer {
+  position: relative;
+}
+.pn-w {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: baseline;
+}
+.pn-p {
+  position: absolute;
+  translate: -50% -50%;
+}
+.pn-t,
+.pn-c {
+  box-sizing: border-box;
+  color: var(
+    --pinote-foreground,
+    var(--popover-foreground, light-dark(#202020, #fafafa))
+  );
+  background: var(
+    --pinote-background,
+    var(--popover, light-dark(#fff, #202020))
+  );
+  border: 0;
+  box-shadow: 0 2px 6px #0002;
+}
+.pn-t {
+  display: inline-grid;
+  position: relative;
+  place-items: center;
+  vertical-align: middle;
+  width: var(--pinote-size, 24px);
+  height: var(--pinote-size, 24px);
+  padding: 3px;
+  border-radius: var(--pinote-trigger-radius, 50% 50% 50% 0);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.pn-t:focus-visible,
+.pn-c:focus-visible {
+  outline-offset: 3px;
+}
+.pn-t svg {
+  width: 16px;
+  height: 16px;
+}
+[data-slot="pinote-avatar"] {
+  width: 18px;
+  height: 18px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.pn-c {
+  z-index: 50;
+  width: min(var(--pinote-width, 280px), calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  border-radius: var(--pinote-radius, var(--radius, 12px));
+  padding: 16px;
+  font: 400 0.875rem/1.5 system-ui;
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+.pn-a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.pn-h > [data-slot="pinote-highlight-text"] {
+  text-decoration: underline dotted var(--pinote-accent, currentColor);
+  text-underline-offset: 0.15em;
+  cursor: pointer;
+}
+@media (pointer: coarse) {
+  .pn-t::after {
+    content: "";
+    position: absolute;
+    inset: -10px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pn-c:not([data-animation="none"]) {
+    animation: pn-enter var(--pinote-duration, 140ms) ease-out;
+  }
+  .pn-c[data-animation="scale"] {
+    --pn-from: scale(0.96);
+  }
+  .pn-c[data-animation="slide"] {
+    --pn-from: translateY(6px);
+  }
+  @keyframes pn-enter {
+    from {
+      opacity: 0;
+      transform: var(--pn-from, none);
+    }
+  }
+}

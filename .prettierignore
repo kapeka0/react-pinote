@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.astro/
+pnpm-lock.yaml
+.agents/
+.claude/
+skills-lock.json
+playwright-report/
+test-results/
+packages/react-pinote/README.md
+packages/react-pinote/LICENSE

@@ -1,0 +1,30 @@
+{
+  "name": "react-pinote-workspace",
+  "private": true,
+  "packageManager": "pnpm@11.1.2",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "build": "pnpm -r --if-present build",
+    "dev": "pnpm --filter react-pinote build && pnpm --parallel --filter react-pinote --filter @react-pinote/demo dev",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "test": "pnpm --filter react-pinote test",
+    "typecheck": "pnpm -r --if-present typecheck && tsc -p tsconfig.tools.json",
+    "test:e2e": "playwright test",
+    "size": "pnpm --filter react-pinote size"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.63.0",
+    "@types/node": "^24.13.3",
+    "eslint": "10.10.0",
+    "prettier": "3.9.6",
+    "prettier-plugin-astro": "0.14.1",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.70.0"
+  }
+}

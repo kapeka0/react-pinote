@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "noUncheckedSideEffectImports": true,
+    "skipLibCheck": false,
+    "types": ["node"]
+  },
+  "include": [
+    "playwright.config.ts",
+    "tests",
+    "packages/react-pinote/browser",
+    "packages/react-pinote/browser*.config.ts"
+  ]
+}
