@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { CSSProperties, RefObject } from "react";
+import type { PinotePosition } from "./types";
 
 export type PinoteSide = "bottom" | "left" | "right" | "top";
 
@@ -20,6 +21,7 @@ export function usePinotePosition(
   triggerRef: RefObject<HTMLElement | null>,
   contentRef: RefObject<HTMLElement | null>,
   portalRoot: HTMLElement | null | false,
+  anchorPosition: PinotePosition,
 ) {
   const [position, setPosition] = useState<FloatingPosition>({
     side: "right",
@@ -102,13 +104,28 @@ export function usePinotePosition(
         : new ResizeObserver(updatePosition);
     observer?.observe(triggerRef.current);
     observer?.observe(contentRef.current);
+    for (
+      let ancestor = triggerRef.current.parentElement;
+      ancestor;
+      ancestor = ancestor.parentElement
+    ) {
+      observer?.observe(ancestor);
+      if (ancestor.dataset.slot === "pinote-layer") break;
+    }
 
     return () => {
       observer?.disconnect();
       window.removeEventListener("resize", updatePosition);
       window.removeEventListener("scroll", updatePosition, true);
     };
-  }, [contentRef, isOpen, triggerRef, portalRoot]);
+  }, [
+    contentRef,
+    isOpen,
+    triggerRef,
+    portalRoot,
+    anchorPosition.x,
+    anchorPosition.y,
+  ]);
 
   return position;
 }

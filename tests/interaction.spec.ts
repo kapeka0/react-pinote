@@ -95,3 +95,53 @@ test("component attachments accept named corners and percentage coordinates", as
   await trigger.click();
   await expect(page.getByRole("dialog")).toContainText("Attached content");
 });
+
+test("open messages follow position changes and attachment resizing", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 700, height: 1200 });
+  await page.getByLabel("Keep attachment open").check();
+  const panel = page.getByRole("dialog");
+  const trigger = page.getByRole("button", {
+    name: "Attached pinote",
+    exact: true,
+  });
+  await expect(panel).toBeVisible();
+  await page.getByLabel("Attachment position").selectOption("bottom-right");
+  const aligned = async () => {
+    const card = (await panel.boundingBox())!;
+    const marker = (await trigger.boundingBox())!;
+    return Math.abs(card.y + card.height / 2 - marker.y - marker.height / 2);
+  };
+  await expect.poll(aligned).toBeLessThan(1);
+  await page.getByRole("button", { name: "Resize attachment" }).focus();
+  await page.keyboard.press("Enter");
+  await expect.poll(aligned).toBeLessThan(1);
+});
+
+test("nested themes keep activator and portalled message backgrounds identical", async ({
+  page,
+}) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.evaluate(() => document.body.classList.add("light"));
+  const trigger = page.getByRole("button", {
+    name: "Multiline pinote",
+    exact: true,
+  });
+  await expect(trigger).toHaveCSS("color-scheme", "dark");
+  await trigger.click();
+  const panel = page.getByRole("dialog");
+  await expect(panel).toHaveCSS("color-scheme", "dark");
+  await expect(panel).toHaveCSS(
+    "background-color",
+    await trigger.evaluate((node) => getComputedStyle(node).backgroundColor),
+  );
+  await page.getByTestId("local-theme").evaluate((node) => {
+    node.className = "light";
+  });
+  await expect(trigger).toHaveCSS("color-scheme", "light");
+  await expect(panel).toHaveCSS(
+    "background-color",
+    await trigger.evaluate((node) => getComputedStyle(node).backgroundColor),
+  );
+});

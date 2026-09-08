@@ -2,11 +2,11 @@
 .pn {
   color-scheme: light dark;
 }
-.dark .pn,
+:where(.dark) .pn,
 .pn[data-pinote-theme="dark"] {
   color-scheme: dark;
 }
-.light .pn,
+:where(.light) .pn,
 .pn[data-pinote-theme="light"] {
   color-scheme: light;
 }

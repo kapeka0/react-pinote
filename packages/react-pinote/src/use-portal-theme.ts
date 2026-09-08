@@ -17,10 +17,20 @@ export function usePortalTheme(
   useEffect(() => {
     const root = source.current;
     const panel = target.current;
-    if (!open || !root || !panel) return;
+    if (!root) return;
     let copied: string[] = [];
     const media = window.matchMedia?.("(prefers-color-scheme: dark)");
     const sync = () => {
+      const explicit = root.closest(".dark,.light");
+      const theme = explicit
+        ? explicit.classList.contains("dark")
+          ? "dark"
+          : "light"
+        : media?.matches
+          ? "dark"
+          : "light";
+      root.dataset.pinoteTheme = theme;
+      if (!open || !panel) return;
       for (const token of copied) panel.style.removeProperty(token);
       copied = [];
       const computed = getComputedStyle(root);
@@ -30,14 +40,7 @@ export function usePortalTheme(
           copied.push(token);
         }
       }
-      const explicit = root.closest(".dark,.light");
-      panel.dataset.pinoteTheme = explicit
-        ? explicit.classList.contains("dark")
-          ? "dark"
-          : "light"
-        : media?.matches
-          ? "dark"
-          : "light";
+      panel.dataset.pinoteTheme = theme;
       panel.dir = computed.direction || "ltr";
     };
     sync();

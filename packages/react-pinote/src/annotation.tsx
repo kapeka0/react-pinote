@@ -22,12 +22,26 @@ const FOCUSABLE = "a[href],button,input,select,textarea,[tabindex]";
 function focusableChildren(element: HTMLElement | null) {
   return Array.from(
     element?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [],
-  ).filter(
-    (node) =>
-      node.tabIndex >= 0 &&
-      !node.matches(':disabled,[hidden],[aria-hidden="true"]') &&
-      !node.closest("[hidden],[inert]"),
-  );
+  ).filter((node) => {
+    if (
+      node.tabIndex < 0 ||
+      node.matches(":disabled") ||
+      node.closest('[hidden],[inert],[aria-hidden="true"]')
+    )
+      return false;
+    if (["hidden", "collapse"].includes(getComputedStyle(node).visibility))
+      return false;
+    for (
+      let ancestor: HTMLElement | null = node;
+      ancestor;
+      ancestor = ancestor.parentElement
+    ) {
+      const style = getComputedStyle(ancestor);
+      if (style.display === "none" || style.contentVisibility === "hidden")
+        return false;
+    }
+    return true;
+  });
 }
 
 export function Annotation({
@@ -79,6 +93,7 @@ export function Annotation({
     triggerRef,
     contentRef,
     portalRoot,
+    point,
   );
   usePortalTheme(isOpen, rootRef, contentRef, portalRoot);
 

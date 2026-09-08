@@ -13,36 +13,50 @@ function Fixture() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [clicks, setClicks] = useState(0);
   const [attachment, setAttachment] = useState("top-left");
+  const [keepAttachedOpen, setKeepAttachedOpen] = useState(false);
+  const [attachmentHeight, setAttachmentHeight] = useState(80);
   return (
     <>
       <h1>Pinote browser tests</h1>
-      <div className="dark" style={{ width: "min(600px, 90vw)" }}>
-        <PinoteLayer style={{ height: 180 }}>
-          <Pinote
-            id="edge"
-            aria-label="Edge pinote"
-            position={{ x: 100, y: 20 }}
-            content="Edge content"
-          />
-          <p style={{ width: "min(220px, 70vw)", lineHeight: 2 }}>
-            <PinoteHighlight
-              id="multi"
-              aria-label="Multiline pinote"
-              content={
-                <>
-                  <button type="button" onClick={() => setClicks(clicks + 1)}>
-                    Increase
-                  </button>
-                  <span>{clicks} clicks</span>
-                  <a href="#after">Details</a>
-                </>
-              }
-            >
-              This highlighted sentence wraps naturally across several lines of
-              text.
-            </PinoteHighlight>
-          </p>
-        </PinoteLayer>
+      <div className="light">
+        <div
+          className="dark"
+          data-testid="local-theme"
+          style={{ width: "min(600px, 90vw)" }}
+        >
+          <PinoteLayer style={{ height: 180 }}>
+            <Pinote
+              id="edge"
+              aria-label="Edge pinote"
+              position={{ x: 100, y: 20 }}
+              content="Edge content"
+            />
+            <p style={{ width: "min(220px, 70vw)", lineHeight: 2 }}>
+              <PinoteHighlight
+                id="multi"
+                aria-label="Multiline pinote"
+                content={
+                  <>
+                    <span style={{ display: "none" }}>
+                      <button type="button">Hidden action</button>
+                    </span>
+                    <button type="button" style={{ visibility: "hidden" }}>
+                      Invisible action
+                    </button>
+                    <button type="button" onClick={() => setClicks(clicks + 1)}>
+                      Increase
+                    </button>
+                    <span>{clicks} clicks</span>
+                    <a href="#after">Details</a>
+                  </>
+                }
+              >
+                This highlighted sentence wraps naturally across several lines
+                of text.
+              </PinoteHighlight>
+            </p>
+          </PinoteLayer>
+        </div>
       </div>
       <button type="button" id="after">
         After layer
@@ -100,7 +114,21 @@ function Fixture() {
           <option>coordinates</option>
         </select>
       </label>
-      <PinoteLayer style={{ margin: 40 }}>
+      <label>
+        <input
+          type="checkbox"
+          checked={keepAttachedOpen}
+          onChange={(event) => setKeepAttachedOpen(event.target.checked)}
+        />
+        Keep attachment open
+      </label>
+      <button type="button" onClick={() => setAttachmentHeight(140)}>
+        Resize attachment
+      </button>
+      <PinoteLayer
+        style={{ margin: 40 }}
+        {...(keepAttachedOpen ? { openId: "attached" } : {})}
+      >
         <Pinote
           id="attached"
           aria-label="Attached pinote"
@@ -111,7 +139,10 @@ function Fixture() {
           }
           content="Attached content"
         >
-          <button type="button" style={{ width: 160, height: 80 }}>
+          <button
+            type="button"
+            style={{ width: 160, height: attachmentHeight }}
+          >
             Attached component
           </button>
         </Pinote>
