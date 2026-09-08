@@ -137,7 +137,7 @@ test("nested themes keep activator and portalled message backgrounds identical",
     await trigger.evaluate((node) => getComputedStyle(node).backgroundColor),
   );
   await page.getByTestId("local-theme").evaluate((node) => {
-    node.className = "light";
+    node.setAttribute("class", "light");
   });
   await expect(trigger).toHaveCSS("color-scheme", "light");
   await expect(panel).toHaveCSS(
