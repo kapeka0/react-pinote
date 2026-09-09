@@ -608,6 +608,28 @@ test("expansion moves one avatar on a stable surface and reverses without a jump
     }, progress);
     await expect(exiting).toHaveCSS("opacity", "1");
     await expect(exiting.locator("img")).toHaveCSS("opacity", "1");
+    // The close should ease into motion, then keep moving through its midpoint.
+    // An opening-style ease-out leaves almost no movement in the second half.
+    const travel = await exiting.locator("img").evaluate((node) => {
+      const motion = node
+        .getAnimations()
+        .find(
+          (animation) =>
+            animation instanceof CSSTransition &&
+            animation.transitionProperty === "transform",
+        )!;
+      const frames = (motion.effect as KeyframeEffect).getKeyframes();
+      const start = new DOMMatrix(frames[0]!.transform as string);
+      const end = new DOMMatrix(frames.at(-1)!.transform as string);
+      const current = new DOMMatrix(getComputedStyle(node).transform);
+      return (
+        Math.hypot(current.m41 - start.m41, current.m42 - start.m42) /
+        Math.hypot(end.m41 - start.m41, end.m42 - start.m42)
+      );
+    });
+    if (progress === 0.1) expect(travel).toBeLessThan(0.1);
+    if (progress === 0.5) expect(travel).toBeLessThan(0.85);
+    if (progress === 0.9) expect(travel).toBeGreaterThan(0.95);
     const card = (await exiting.boundingBox())!;
     await page.screenshot({
       path: testInfo.outputPath(`contract-${progress}.png`),

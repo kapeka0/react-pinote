@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Smooth the expansion's closing curve while preserving its opening animation.
+
 ## 0.1.0
 
 Initial release.

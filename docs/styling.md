@@ -38,7 +38,7 @@ Panels size to their content up to the maximum width. Triggers include a 10px to
 | Variable                     | Default                        | Controls                                                               |
 | ---------------------------- | ------------------------------ | ---------------------------------------------------------------------- |
 | `--pinote-duration`          | `140ms` for popovers           | Panel and hover duration. Overrides both expansion durations when set. |
-| `--pinote-easing`            | `cubic-bezier(.2,0,0,1)`       | Marker and panel easing.                                               |
+| `--pinote-easing`            | See below                      | Marker and panel easing.                                               |
 | `--pinote-entrance-delay`    | `0s`                           | Delay before a marker appears.                                         |
 | `--pinote-entrance-duration` | `240ms`                        | Marker entrance duration.                                              |
 | `--pinote-hover-scale`       | `0.96`                         | Trigger scale on hover. Set to `1` to keep its size.                   |
@@ -49,6 +49,8 @@ Panels size to their content up to the maximum width. Triggers include a 10px to
 | `--pinote-expand-shadow`     | `drop-shadow(0 2px 3px #0002)` | Filter around the expansion.                                           |
 
 The marker entrance runs once after hydration. Moving a marker or opening its panel does not replay it. Set `entranceAnimation="none"` to disable it.
+
+Expansion closes with `cubic-bezier(.4,0,.2,1)` to spread the movement across the transition. Opening, popovers and marker animations use `cubic-bezier(.2,0,0,1)`. Set `--pinote-easing` to override both curves.
 
 Panels remain mounted during exit. Reopening reverses the current transition. Reduced motion removes scale, movement and clipping; panels fade over 200ms. Exiting content is inert and hidden from assistive technology.
 
