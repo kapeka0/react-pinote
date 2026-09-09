@@ -167,14 +167,15 @@ export function PinoteSurface({
           overscrollBehavior: "contain",
           cursor: expand ? "pointer" : undefined,
           outline: expand && focusVisible ? "auto" : undefined,
+          ...(!isOpen && {
+            "--pn-d": "var(--pinote-collapse-duration,220ms)",
+            "--pn-e": "var(--pinote-easing,cubic-bezier(.4,0,.2,1))",
+          }),
           ...(expand
             ? {
-                ...(isOpen
-                  ? { "--pn-d": "var(--pinote-expand-duration,160ms)" }
-                  : {
-                      "--pn-d": "var(--pinote-collapse-duration,220ms)",
-                      "--pn-e": "var(--pinote-easing,cubic-bezier(.4,0,.2,1))",
-                    }),
+                ...(isOpen && {
+                  "--pn-d": "var(--pinote-expand-duration,160ms)",
+                }),
                 clipPath: openTarget ? `inset(0 round ${cardRadius})` : clip,
                 borderRadius: cardRadius,
                 opacity: 1,

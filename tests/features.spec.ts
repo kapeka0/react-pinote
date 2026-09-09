@@ -306,6 +306,7 @@ test("uses the scale, slide and fade transition targets", async ({ page }) => {
       "matrix(0.96, 0, 0, 0.96, 0, 0)",
     ],
     ["Open one-time pinote", "slide", "matrix(1, 0, 0, 1, 0, 6)"],
+    ["Open custom style pinote", "slide", "matrix(1, 0, 0, 1, 0, 6)"],
     ["Open anonymous pinote", "fade", "none"],
   ] as const) {
     await page.getByRole("button", { name, exact: true }).click();
@@ -319,6 +320,25 @@ test("uses the scale, slide and fade transition targets", async ({ page }) => {
     );
     await page.keyboard.press("Escape");
     const exiting = page.locator('[data-slot="pinote-content"][data-leaving]');
+    const quarterExit = await exiting.evaluate((node) => {
+      node.getAnimations().forEach((animation) => {
+        animation.pause();
+        animation.currentTime =
+          Number(animation.effect!.getTiming().duration) / 4;
+      });
+      const style = getComputedStyle(node);
+      return {
+        duration: style.transitionDuration,
+        easing: style.transitionTimingFunction,
+        opacity: Number(style.opacity),
+      };
+    });
+    expect(quarterExit).toMatchObject({
+      duration: "0.22s",
+      easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+    });
+    expect(quarterExit.opacity).toBeGreaterThan(0.7);
+    expect(quarterExit.opacity).toBeLessThan(1);
     expect(
       await exiting.evaluate((node) => {
         node.getAnimations().forEach((animation) => {
@@ -330,12 +350,18 @@ test("uses the scale, slide and fade transition targets", async ({ page }) => {
     ).toEqual({ opacity: "0", transform: exitTransform });
     await expect(exiting).toHaveCount(0);
   }
+});
+
+test("disables panel transitions with the none preset", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
   await page
-    .getByRole("button", { name: "Open custom style pinote", exact: true })
+    .getByRole("button", { name: "Instant pinote", exact: true })
     .click();
   const instant = page.getByRole("dialog");
   await expect(instant).toHaveAttribute("data-animation", "none");
   await expect(instant).toHaveCSS("transition-duration", "0s");
+  await page.keyboard.press("Escape");
+  await expect(page.locator('[data-slot="pinote-content"]')).toHaveCount(0);
 });
 
 test("drags without jumping, emits positions, clamps to the layer and suppresses the release click", async ({

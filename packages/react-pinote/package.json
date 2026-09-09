@@ -1,6 +1,6 @@
 {
   "name": "react-pinote",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Lightweight React annotations for coordinates and highlighted text.",
   "license": "MIT",
   "homepage": "https://react-pinote.vercel.app",

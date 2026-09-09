@@ -82,7 +82,7 @@ These props also apply to `PinoteHighlight`.
 | `aria-label`         | `string`                                      | Based on author           | Accessible label for the trigger and panel.                                         |
 | `className`, `style` | React DOM types                               | None                      | Applied to the wrapper and panel. Supports `--pinote-*` variables.                  |
 
-`PinoteAnimation` accepts `"fade"`, `"scale"`, `"slide"` or `"none"`. Corner names are `"top-left"`, `"top-right"`, `"bottom-left"` and `"bottom-right"`.
+`PinoteAnimation` accepts `"fade"`, `"scale"`, `"slide"` or `"none"`. The selected preset applies to both entry and exit. Panels close over 220 ms by default; `"none"` disables the transition. See [motion variables](styling.md#motion) to adjust the timing. Corner names are `"top-left"`, `"top-right"`, `"bottom-left"` and `"bottom-right"`.
 
 ## PinoteHighlight
 

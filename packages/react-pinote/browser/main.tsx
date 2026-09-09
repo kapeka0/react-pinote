@@ -137,6 +137,13 @@ function Fixture() {
             content={`${name} content`}
           />
         ))}
+        <Pinote
+          id="instant"
+          aria-label="Instant pinote"
+          position={{ x: 95, y: 50 }}
+          animation="none"
+          content="No panel animation"
+        />
       </PinoteLayer>
       <div
         data-testid="surface"
