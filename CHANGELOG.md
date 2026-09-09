@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.4.1
+
 - Keep the pointed corner fixed throughout expansion on small screens. Fit content to the available space and let automatic orientation choose the other horizontal side when needed.
 - Shorten the README to installation, basic usage and documentation links. Keep text, drag and interaction examples in the API reference.
 
