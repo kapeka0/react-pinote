@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.1
 
 - Smooth the expansion's closing curve while preserving its opening animation.
 - Reduce the demo's marker entrance delay from 500ms to 250ms.
