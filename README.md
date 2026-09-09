@@ -44,6 +44,10 @@ Content can be text or your own React components. Pinote handles positioning, mo
 - [Styling, Tailwind and shadcn/ui](docs/styling.md)
 - [Full API reference](docs/api.md)
 
+## Contributing
+
+See [the contribution guide](https://github.com/kapeka0/react-pinote/blob/main/CONTRIBUTING.md) for issues, pull requests and local development.
+
 ## License
 
 [MIT](LICENSE)
