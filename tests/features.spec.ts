@@ -6,6 +6,93 @@ test.beforeEach(async ({ page }, testInfo) => {
   );
 });
 
+test("composes an app button outside a layer with its ref, native style and keyboard focus", async ({
+  page,
+}) => {
+  const trigger = page.getByRole("button", { name: "Discuss", exact: true });
+  expect(
+    await trigger.evaluate((node) =>
+      node.closest('[data-slot="pinote-layer"]'),
+    ),
+  ).toBeNull();
+  await expect(trigger).toHaveCSS("width", "90px");
+  await expect(trigger).toHaveCSS("height", "36px");
+  await expect(trigger).toHaveCSS("border-radius", "6px");
+  await expect(trigger).toHaveCSS("background-color", "rgb(248, 229, 164)");
+  await trigger.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByLabel("Custom reply")).toBeFocused();
+  await expect(page.getByTestId("custom-actions")).toHaveText(
+    "1 custom actions; ref ready",
+  );
+  await page.keyboard.press("Escape");
+  await expect(trigger).toBeFocused();
+  await expect(trigger).toHaveAttribute("aria-expanded", "false");
+});
+
+test("drags an app button within its own layer and shares open state with the root provider", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const trigger = page.getByRole("button", {
+    name: "Custom drag",
+    exact: true,
+  });
+  await trigger.scrollIntoViewIfNeeded();
+  const before = (await trigger.boundingBox())!;
+  await page.mouse.move(
+    before.x + before.width / 2,
+    before.y + before.height / 2,
+  );
+  await page.mouse.down();
+  await page.mouse.move(
+    before.x + before.width / 2 + 45,
+    before.y + before.height / 2 + 18,
+    { steps: 5 },
+  );
+  await expect(trigger).toHaveCSS("cursor", "grabbing");
+  await page.mouse.up();
+  const after = (await trigger.boundingBox())!;
+  expect(after.x - before.x).toBeCloseTo(45, 0);
+  expect(after.y - before.y).toBeCloseTo(18, 0);
+  await trigger.click();
+  await expect(page.getByRole("dialog")).toHaveText("Custom drag content");
+  await page.getByRole("button", { name: "Open custom from provider" }).click();
+  await expect(page.getByLabel("Expansion reply")).toBeFocused();
+  await expect(trigger).toHaveAttribute("aria-expanded", "false");
+  await expect(page.getByTestId("custom-expansion")).toHaveAttribute(
+    "data-preview",
+    "false",
+  );
+});
+
+test("expands from a rectangular custom trigger and animates back to its measured size", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  const trigger = page.getByTestId("custom-expansion");
+  await trigger.click();
+  const panel = page.getByRole("dialog", { name: "Custom expansion" });
+  await expect(page.getByLabel("Expansion reply")).toBeFocused();
+  await panel.evaluate((node) =>
+    Promise.all(node.getAnimations().map((animation) => animation.finished)),
+  );
+  await page.keyboard.press("Escape");
+  const exiting = page.locator('[data-slot="pinote-content"][data-leaving]');
+  await expect(exiting).toHaveAttribute("inert", "");
+  const clip = await exiting.evaluate(
+    (node) => (node as HTMLElement).style.clipPath,
+  );
+  expect(clip).toContain("36px");
+  expect(clip).toContain("88px");
+  expect(
+    await exiting.evaluate((node) => node.getAnimations().length),
+  ).toBeGreaterThan(0);
+  await expect(exiting).toHaveCount(0);
+  await expect(trigger).toBeVisible();
+  await expect(trigger).toBeFocused();
+});
+
 test("uses a neutral default and matching, borderless colored messages", async ({
   page,
 }) => {
@@ -795,9 +882,11 @@ test("expands from the marker's pointed corner and contracts back into it", asyn
   await trigger.hover();
   await expect(panel).toBeVisible();
   // Activate the visible surface at the marker, even after it has expanded.
+  // Hover can scroll the taller fixture; use its current viewport coordinates.
+  const reopenedMarker = (await trigger.boundingBox())!;
   await page.mouse.click(
-    marker.x + marker.width / 2,
-    marker.y + marker.height / 2,
+    reopenedMarker.x + reopenedMarker.width / 2,
+    reopenedMarker.y + reopenedMarker.height / 2,
   );
   await expect(panel).toBeVisible();
   await expect(panel).toBeFocused();

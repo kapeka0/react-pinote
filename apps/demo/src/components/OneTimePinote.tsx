@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { Pinote, usePinoteLayer } from "react-pinote";
+import { Pinote, usePinoteProvider } from "react-pinote";
 import type { PinoteProps } from "react-pinote";
 
 /** This demo decides when an annotation is consumed; the library only reports interactions. */
 export function OneTimePinote(props: PinoteProps) {
-  const { openId, close } = usePinoteLayer();
+  const { openId, close } = usePinoteProvider();
   const viewed = useRef(false);
   const [consumed, setConsumed] = useState(false);
   useEffect(() => {

@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { PinoteSurface } from "./pinote-surface";
 import { usePinoteInteraction } from "./use-pinote-interaction";
 import { PinoteContentContext } from "./use-pinote";
+import { usePinoteArea } from "./pinote-context";
 import type {
   PinoteAppearance,
   PinoteDragOptions,
@@ -49,6 +50,7 @@ export function Annotation({
     },
     onDragEnd,
   });
+  usePinoteArea(attached);
   return (
     <PinoteContentContext.Provider value={interaction.state}>
       <PinoteSurface

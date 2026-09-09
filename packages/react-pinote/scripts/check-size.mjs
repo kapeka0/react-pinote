@@ -5,8 +5,8 @@ import { URL } from "node:url";
 const js = await readFile(new URL("../dist/index.js", import.meta.url));
 const css = await readFile(new URL("../dist/styles.css", import.meta.url));
 const jsBytes = gzipSync(js).byteLength;
-// Pinote UI, content slots, focus handling and state hooks; no app-level features.
-const jsBudget = 6500;
+// Pinote UI, provider, trigger composition and focus handling; no app-level features.
+const jsBudget = 7000;
 // Public motion variables add CSS tokens, with no runtime dependency.
 const cssBudget = 2100;
 console.log(

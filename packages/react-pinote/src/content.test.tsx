@@ -2,7 +2,13 @@ import { useRef } from "react";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { Pinote, PinoteLayer, usePinote, usePinoteLayer } from "./index";
+import {
+  Pinote,
+  PinoteLayer,
+  PinoteProvider,
+  usePinote,
+  usePinoteProvider,
+} from "./index";
 
 function AppContent() {
   const { isPreview, close } = usePinote();
@@ -24,14 +30,16 @@ describe("app-owned pinote content", () => {
     }
     const user = userEvent.setup();
     render(
-      <PinoteLayer>
-        <Pinote
-          id="header"
-          position="center"
-          header={<Header />}
-          content="App content"
-        />
-      </PinoteLayer>,
+      <PinoteProvider>
+        <PinoteLayer>
+          <Pinote
+            id="header"
+            position="center"
+            header={<Header />}
+            content="App content"
+          />
+        </PinoteLayer>
+      </PinoteProvider>,
     );
     const trigger = screen.getByRole("button", { name: "Open pinote" });
     await user.click(trigger);
@@ -48,18 +56,20 @@ describe("app-owned pinote content", () => {
   it("focuses the first control without preferring an editable input", async () => {
     const user = userEvent.setup();
     render(
-      <PinoteLayer>
-        <Pinote
-          id="ordered"
-          position="center"
-          content={
-            <>
-              <button>First action</button>
-              <textarea aria-label="Editor" />
-            </>
-          }
-        />
-      </PinoteLayer>,
+      <PinoteProvider>
+        <PinoteLayer>
+          <Pinote
+            id="ordered"
+            position="center"
+            content={
+              <>
+                <button>First action</button>
+                <textarea aria-label="Editor" />
+              </>
+            }
+          />
+        </PinoteLayer>
+      </PinoteProvider>,
     );
     await user.click(screen.getByRole("button", { name: "Open pinote" }));
     await waitFor(() =>
@@ -72,16 +82,18 @@ describe("app-owned pinote content", () => {
   it("allows a custom header and leading visual without author data", async () => {
     const user = userEvent.setup();
     render(
-      <PinoteLayer>
-        <Pinote
-          id="slots"
-          position="center"
-          variant="expand"
-          header={<strong>Release status</strong>}
-          leading={<svg aria-label="App mark" />}
-          content="Ready"
-        />
-      </PinoteLayer>,
+      <PinoteProvider>
+        <PinoteLayer>
+          <Pinote
+            id="slots"
+            position="center"
+            variant="expand"
+            header={<strong>Release status</strong>}
+            leading={<svg aria-label="App mark" />}
+            content="Ready"
+          />
+        </PinoteLayer>
+      </PinoteProvider>,
     );
     await user.click(screen.getByRole("button", { name: "Open pinote" }));
     const panel = screen.getByRole("dialog");
@@ -97,16 +109,18 @@ describe("app-owned pinote content", () => {
   it("can omit the default author header and avatar independently", async () => {
     const user = userEvent.setup();
     render(
-      <PinoteLayer>
-        <Pinote
-          id="slots"
-          position="center"
-          author={{ name: "Ada", avatarUrl: "/ada.png" }}
-          header={null}
-          leading={null}
-          content="Ready"
-        />
-      </PinoteLayer>,
+      <PinoteProvider>
+        <PinoteLayer>
+          <Pinote
+            id="slots"
+            position="center"
+            author={{ name: "Ada", avatarUrl: "/ada.png" }}
+            header={null}
+            leading={null}
+            content="Ready"
+          />
+        </PinoteLayer>
+      </PinoteProvider>,
     );
     await user.click(
       screen.getByRole("button", { name: "Open pinote from Ada" }),
@@ -130,9 +144,11 @@ describe("app-owned pinote content", () => {
       const user = userEvent.setup();
       render(
         <>
-          <PinoteLayer>
-            <Pinote id="custom" position="center" content={<AppContent />} />
-          </PinoteLayer>
+          <PinoteProvider>
+            <PinoteLayer>
+              <Pinote id="custom" position="center" content={<AppContent />} />
+            </PinoteLayer>
+          </PinoteProvider>
           <button>Outside action</button>
         </>,
       );
@@ -150,9 +166,11 @@ describe("app-owned pinote content", () => {
   it("previews without stealing focus and focuses app inputs on pointer activation", async () => {
     const user = userEvent.setup();
     render(
-      <PinoteLayer>
-        <Pinote id="custom" position="center" content={<AppContent />} />
-      </PinoteLayer>,
+      <PinoteProvider>
+        <PinoteLayer>
+          <Pinote id="custom" position="center" content={<AppContent />} />
+        </PinoteLayer>
+      </PinoteProvider>,
     );
     const trigger = screen.getByRole("button", { name: "Open pinote" });
     await user.hover(trigger);
@@ -171,20 +189,22 @@ describe("app-owned pinote content", () => {
     function App() {
       const focus = useRef<HTMLButtonElement>(null);
       return (
-        <PinoteLayer>
-          <Pinote
-            id="custom"
-            position="center"
-            triggerAside={<span>App badge</span>}
-            initialFocusRef={focus}
-            content={
-              <>
-                <input aria-label="Other input" />
-                <button ref={focus}>Chosen target</button>
-              </>
-            }
-          />
-        </PinoteLayer>
+        <PinoteProvider>
+          <PinoteLayer>
+            <Pinote
+              id="custom"
+              position="center"
+              triggerAside={<span>App badge</span>}
+              initialFocusRef={focus}
+              content={
+                <>
+                  <input aria-label="Other input" />
+                  <button ref={focus}>Chosen target</button>
+                </>
+              }
+            />
+          </PinoteLayer>
+        </PinoteProvider>
       );
     }
     render(<App />);
@@ -201,14 +221,16 @@ describe("app-owned pinote content", () => {
     const user = userEvent.setup();
     const onOpenChange = vi.fn();
     function Controls() {
-      const { open } = usePinoteLayer();
+      const { open } = usePinoteProvider();
       return <button onClick={() => open("custom")}>App action</button>;
     }
     render(
-      <PinoteLayer openId={null} onOpenChange={onOpenChange}>
-        <Controls />
-        <Pinote id="custom" position="center" content="App content" />
-      </PinoteLayer>,
+      <PinoteProvider openId={null} onOpenChange={onOpenChange}>
+        <PinoteLayer>
+          <Controls />
+          <Pinote id="custom" position="center" content="App content" />
+        </PinoteLayer>
+      </PinoteProvider>,
     );
     await user.click(screen.getByRole("button", { name: "App action" }));
     expect(onOpenChange).toHaveBeenLastCalledWith("custom");

@@ -4,10 +4,12 @@ import {
   Pinote,
   PinoteHighlight,
   PinoteLayer,
+  PinoteProvider,
   getPinotePosition,
 } from "../dist/index.js";
 import type { PinotePlacement, PinotePosition } from "../dist/index.js";
 import { OneTimePinote } from "../../../apps/demo/src/components/OneTimePinote";
+import { CustomTriggers } from "./custom-triggers";
 
 const logo = (
   <svg width="21" height="21" viewBox="0 0 21 21" aria-hidden="true">
@@ -19,46 +21,50 @@ function ComposablePinote() {
   const editor = useRef<HTMLTextAreaElement>(null);
   const [details, setDetails] = useState(false);
   return (
-    <PinoteLayer style={{ height: 200 }}>
-      <Pinote
-        id="composable"
-        preview={false}
-        aria-label="Composable pinote"
-        position="center"
-        variant="expand"
-        icon={logo}
-        leading={logo}
-        header={
-          <div>
-            <strong>App header</strong>
-            <button onClick={() => setDetails(!details)}>Toggle context</button>
-          </div>
-        }
-        triggerAside={<span aria-hidden="true">App badge</span>}
-        initialFocusRef={editor}
-        style={{
-          "--pinote-aside-offset": "17px",
-          "--pinote-aside-reveal": "7px",
-          "--pinote-hover-scale": "0.9",
-          "--pinote-entrance-delay": "300ms",
-          "--pinote-entrance-duration": "600ms",
-          "--pinote-easing": "linear",
-          "--pinote-expand-duration": "700ms",
-          "--pinote-collapse-duration": "900ms",
-        }}
-        content={
-          <>
-            <textarea ref={editor} aria-label="App editor" />
-            {details && (
-              <p>
-                Extra context from the application changes the panel height
-                while it remains open.
-              </p>
-            )}
-          </>
-        }
-      />
-    </PinoteLayer>
+    <PinoteProvider>
+      <PinoteLayer style={{ height: 200 }}>
+        <Pinote
+          id="composable"
+          preview={false}
+          aria-label="Composable pinote"
+          position="center"
+          variant="expand"
+          icon={logo}
+          leading={logo}
+          header={
+            <div>
+              <strong>App header</strong>
+              <button onClick={() => setDetails(!details)}>
+                Toggle context
+              </button>
+            </div>
+          }
+          triggerAside={<span aria-hidden="true">App badge</span>}
+          initialFocusRef={editor}
+          style={{
+            "--pinote-aside-offset": "17px",
+            "--pinote-aside-reveal": "7px",
+            "--pinote-hover-scale": "0.9",
+            "--pinote-entrance-delay": "300ms",
+            "--pinote-entrance-duration": "600ms",
+            "--pinote-easing": "linear",
+            "--pinote-expand-duration": "700ms",
+            "--pinote-collapse-duration": "900ms",
+          }}
+          content={
+            <>
+              <textarea ref={editor} aria-label="App editor" />
+              {details && (
+                <p>
+                  Extra context from the application changes the panel height
+                  while it remains open.
+                </p>
+              )}
+            </>
+          }
+        />
+      </PinoteLayer>
+    </PinoteProvider>
   );
 }
 
@@ -83,68 +89,75 @@ function Fixture() {
           data-testid="local-theme"
           style={{ width: "min(600px, 90vw)" }}
         >
-          <PinoteLayer style={{ height: 180 }}>
-            <Pinote
-              id="edge"
-              aria-label="Edge pinote"
-              position={{ x: 100, y: 20 }}
-              content="Edge content"
-            />
-            <p style={{ width: "min(220px, 70vw)", lineHeight: 2 }}>
-              <PinoteHighlight
-                id="multi"
-                aria-label="Multiline pinote"
-                content={
-                  <>
-                    <span style={{ display: "none" }}>
-                      <button type="button">Hidden action</button>
-                    </span>
-                    <button type="button" style={{ visibility: "hidden" }}>
-                      Invisible action
-                    </button>
-                    <button type="button" onClick={() => setClicks(clicks + 1)}>
-                      Increase
-                    </button>
-                    <span>{clicks} clicks</span>
-                    <a href="#after">Details</a>
-                  </>
-                }
-              >
-                This highlighted sentence wraps naturally across several lines
-                of text.
-              </PinoteHighlight>
-            </p>
-          </PinoteLayer>
+          <PinoteProvider>
+            <PinoteLayer style={{ height: 180 }}>
+              <Pinote
+                id="edge"
+                aria-label="Edge pinote"
+                position={{ x: 100, y: 20 }}
+                content="Edge content"
+              />
+              <p style={{ width: "min(220px, 70vw)", lineHeight: 2 }}>
+                <PinoteHighlight
+                  id="multi"
+                  aria-label="Multiline pinote"
+                  content={
+                    <>
+                      <span style={{ display: "none" }}>
+                        <button type="button">Hidden action</button>
+                      </span>
+                      <button type="button" style={{ visibility: "hidden" }}>
+                        Invisible action
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setClicks(clicks + 1)}
+                      >
+                        Increase
+                      </button>
+                      <span>{clicks} clicks</span>
+                      <a href="#after">Details</a>
+                    </>
+                  }
+                >
+                  This highlighted sentence wraps naturally across several lines
+                  of text.
+                </PinoteHighlight>
+              </p>
+            </PinoteLayer>
+          </PinoteProvider>
         </div>
       </div>
       <button type="button" id="after">
         After layer
       </button>
-      <PinoteLayer style={{ height: 100 }}>
-        {(
-          [
-            ["neutral", undefined],
-            ["blue", "#1d4ed8"],
-            ["red", "#b91c1c"],
-          ] as const
-        ).map(([name, color], index) => (
+      <PinoteProvider>
+        <PinoteLayer style={{ height: 100 }}>
+          {(
+            [
+              ["neutral", undefined],
+              ["blue", "#1d4ed8"],
+              ["red", "#b91c1c"],
+            ] as const
+          ).map(([name, color], index) => (
+            <Pinote
+              key={name}
+              id={name}
+              aria-label={`${name} pinote`}
+              {...(color ? { color } : {})}
+              position={{ x: 20 + index * 30, y: 50 }}
+              content={`${name} content`}
+            />
+          ))}
           <Pinote
-            key={name}
-            id={name}
-            aria-label={`${name} pinote`}
-            {...(color ? { color } : {})}
-            position={{ x: 20 + index * 30, y: 50 }}
-            content={`${name} content`}
+            id="instant"
+            aria-label="Instant pinote"
+            position={{ x: 95, y: 50 }}
+            animation="none"
+            content="No panel animation"
           />
-        ))}
-        <Pinote
-          id="instant"
-          aria-label="Instant pinote"
-          position={{ x: 95, y: 50 }}
-          animation="none"
-          content="No panel animation"
-        />
-      </PinoteLayer>
+        </PinoteLayer>
+      </PinoteProvider>
       <div
         data-testid="surface"
         style={{ margin: 20, border: "8px solid silver" }}
@@ -156,85 +169,93 @@ function Fixture() {
             setPosition(getPinotePosition(event, event.currentTarget));
         }}
       >
-        <PinoteLayer style={{ height: 180, pointerEvents: "none" }}>
-          <Pinote
-            id="movable"
-            aria-label="Movable pinote"
-            draggable
-            onPositionChange={setPosition}
-            style={{ pointerEvents: "auto" }}
-            position={position}
-            content="Positioned from your pointer"
-          />
-        </PinoteLayer>
+        <PinoteProvider>
+          <PinoteLayer style={{ height: 180, pointerEvents: "none" }}>
+            <Pinote
+              id="movable"
+              aria-label="Movable pinote"
+              draggable
+              onPositionChange={setPosition}
+              style={{ pointerEvents: "auto" }}
+              position={position}
+              content="Positioned from your pointer"
+            />
+          </PinoteLayer>
+        </PinoteProvider>
       </div>
       <output>{JSON.stringify(position)}</output>
-      <PinoteLayer
-        style={{ height: 180, margin: 20, border: "8px solid silver" }}
-      >
-        <Pinote
-          id="draggable"
-          aria-label="Draggable pinote"
-          draggable
-          defaultPosition={{ x: 50, y: 50 }}
-          onPositionChange={setDragged}
-          onDragEnd={() => setDragEnds((count) => count + 1)}
-          content="Drag content"
-          entranceAnimation="none"
-        />
-      </PinoteLayer>
+      <PinoteProvider>
+        <PinoteLayer
+          style={{ height: 180, margin: 20, border: "8px solid silver" }}
+        >
+          <Pinote
+            id="draggable"
+            aria-label="Draggable pinote"
+            draggable
+            defaultPosition={{ x: 50, y: 50 }}
+            onPositionChange={setDragged}
+            onDragEnd={() => setDragEnds((count) => count + 1)}
+            content="Drag content"
+            entranceAnimation="none"
+          />
+        </PinoteLayer>
+      </PinoteProvider>
       <output data-testid="drag-position">{JSON.stringify(dragged)}</output>
       <output data-testid="drag-ends">{dragEnds}</output>
-      <PinoteLayer style={{ height: 100 }}>
-        <OneTimePinote
-          id="hiding"
-          position="center"
-          aria-label="Hiding pinote"
-          content={<button type="button">Reply</button>}
-        />
-      </PinoteLayer>
+      <PinoteProvider>
+        <PinoteLayer style={{ height: 100 }}>
+          <OneTimePinote
+            id="hiding"
+            position="center"
+            aria-label="Hiding pinote"
+            content={<button type="button">Reply</button>}
+          />
+        </PinoteLayer>
+      </PinoteProvider>
       <button type="button">After hiding pinote</button>
-      <PinoteLayer style={{ height: 160, margin: 40 }}>
-        <Pinote
-          id="expand"
-          aria-label="Expanding pinote"
-          position={{ x: 35, y: 65 }}
-          variant="expand"
-          author={{
-            name: "Maya",
-            avatarUrl:
-              "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%230d9488' d='M0 0h24v24H0z'/%3E%3Ccircle fill='%23fef3c7' cx='12' cy='10' r='6'/%3E%3C/svg%3E",
-          }}
-          content="An expanding message"
-        />
-      </PinoteLayer>
-      <PinoteLayer
-        openId={openId}
-        onOpenChange={setOpenId}
-        style={{ height: 100 }}
-      >
-        <Pinote
-          id="controlled"
-          aria-label="Controlled pinote"
-          position={{ x: 50, y: 50 }}
-          content="Controlled content"
-        />
-      </PinoteLayer>
-      <PinoteLayer style={{ height: 100 }}>
-        <Pinote
-          id="side-author"
-          aria-label="Side author pinote"
-          position="center"
-          author={{
-            name: "Maya",
-            avatarUrl:
-              "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle fill='%230d9488' cx='12' cy='12' r='12'/%3E%3C/svg%3E",
-          }}
-          authorPlacement="beside"
-          icon="1"
-          content="The author sits beside this trigger."
-        />
-      </PinoteLayer>
+      <PinoteProvider>
+        <PinoteLayer style={{ height: 160, margin: 40 }}>
+          <Pinote
+            id="expand"
+            aria-label="Expanding pinote"
+            position={{ x: 35, y: 65 }}
+            variant="expand"
+            author={{
+              name: "Maya",
+              avatarUrl:
+                "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%230d9488' d='M0 0h24v24H0z'/%3E%3Ccircle fill='%23fef3c7' cx='12' cy='10' r='6'/%3E%3C/svg%3E",
+            }}
+            content="An expanding message"
+          />
+        </PinoteLayer>
+      </PinoteProvider>
+      <PinoteProvider openId={openId} onOpenChange={setOpenId}>
+        <PinoteLayer style={{ height: 100 }}>
+          <Pinote
+            id="controlled"
+            aria-label="Controlled pinote"
+            position={{ x: 50, y: 50 }}
+            content="Controlled content"
+          />
+        </PinoteLayer>
+      </PinoteProvider>
+      <PinoteProvider>
+        <PinoteLayer style={{ height: 100 }}>
+          <Pinote
+            id="side-author"
+            aria-label="Side author pinote"
+            position="center"
+            author={{
+              name: "Maya",
+              avatarUrl:
+                "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle fill='%230d9488' cx='12' cy='12' r='12'/%3E%3C/svg%3E",
+            }}
+            authorPlacement="beside"
+            icon="1"
+            content="The author sits beside this trigger."
+          />
+        </PinoteLayer>
+      </PinoteProvider>
       <button type="button" onClick={() => setOpenId("controlled")}>
         Open externally
       </button>
@@ -280,31 +301,31 @@ function Fixture() {
       <button type="button" onClick={() => setAttachmentHeight(140)}>
         Resize attachment
       </button>
-      <PinoteLayer
-        style={{ margin: 40 }}
-        {...(keepAttachedOpen ? { openId: "attached" } : {})}
-      >
-        <Pinote
-          id="attached"
-          aria-label="Attached pinote"
-          icon={logo}
-          orientation={orientation}
-          position={
-            attachment === "coordinates"
-              ? { x: 25, y: 75 }
-              : (attachment as PinotePlacement)
-          }
-          content="Attached content"
-        >
-          <button
-            type="button"
-            style={{ width: 160, height: attachmentHeight }}
+      <PinoteProvider {...(keepAttachedOpen ? { openId: "attached" } : {})}>
+        <PinoteLayer style={{ margin: 40 }}>
+          <Pinote
+            id="attached"
+            aria-label="Attached pinote"
+            icon={logo}
+            orientation={orientation}
+            position={
+              attachment === "coordinates"
+                ? { x: 25, y: 75 }
+                : (attachment as PinotePlacement)
+            }
+            content="Attached content"
           >
-            Attached component
-          </button>
-        </Pinote>
-      </PinoteLayer>
+            <button
+              type="button"
+              style={{ width: 160, height: attachmentHeight }}
+            >
+              Attached component
+            </button>
+          </Pinote>
+        </PinoteLayer>
+      </PinoteProvider>
       <ComposablePinote />
+      <CustomTriggers />
     </>
   );
 }

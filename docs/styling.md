@@ -6,6 +6,8 @@ Styles load with `react-pinote`. Set CSS variables on a pinote, a layer or an an
 
 Your build tool must support CSS imports.
 
+The example below belongs inside a `PinoteLayer` within a `PinoteProvider`. The provider has no DOM wrapper; put inherited styles on your own element or the layer.
+
 ```tsx
 <Pinote
   id="custom"
@@ -33,7 +35,31 @@ Your build tool must support CSS imports.
 | `--pinote-aside-offset`   | `9px`                          | Side decoration offset at rest.                    |
 | `--pinote-aside-reveal`   | `3px`                          | Extra side decoration movement on hover.           |
 
-Panels size to their content up to the maximum width. Triggers include a 10px touch target extension on each side; leave space between nearby controls.
+Panels size to their content up to the maximum width. Default triggers include a 10px touch target extension on each side; leave space between nearby controls. Custom triggers own their sizing and hit area.
+
+## Tailwind and custom triggers
+
+No Tailwind plugin or preset is required. Use utility classes on your own content and on the element passed to `render`. Tailwind must scan the application file containing those classes.
+
+```tsx
+import { Pinote, PinoteProvider } from "react-pinote";
+
+<PinoteProvider>
+  <Pinote
+    id="tailwind"
+    content="Review this heading."
+    render={
+      <button className="rounded-md bg-blue-600 px-3 py-2 text-white focus-visible:outline-2 focus-visible:outline-offset-2">
+        Review
+      </button>
+    }
+  >
+    <h1>Get started</h1>
+  </Pinote>
+</PinoteProvider>;
+```
+
+Default marker CSS does not apply to the custom button. The panel keeps its normal styles. `color` and the appearance variables still style the panel; they only style a custom trigger if your own CSS uses them. Keep `props.className` and `props.style` when using a render callback. See [custom triggers](api.md#custom-triggers).
 
 ## Motion
 
@@ -73,6 +99,29 @@ To use shadcn's palette, set these variables on a class applied through `classNa
 
 The tokens must hold complete CSS colors such as `oklch(...)`, not bare HSL channels. The library carries these tokens and `--radius` into portals and updates them when the local theme changes.
 
+To use your shadcn button as the trigger:
+
+```tsx
+import { Pinote, PinoteProvider } from "react-pinote";
+import { Button } from "@/components/ui/button";
+
+<PinoteProvider>
+  <Pinote
+    id="shadcn"
+    content="Review this heading."
+    render={
+      <Button variant="outline" size="sm">
+        Review
+      </Button>
+    }
+  >
+    <h1>Get started</h1>
+  </Pinote>
+</PinoteProvider>;
+```
+
+The button must forward its ref and all received props to a native button. Do not switch it to a link with `asChild` or another `render` target.
+
 ## Target a part
 
 Use `data-slot` selectors for individual elements. `className` applies to both the annotation wrapper and panel.
@@ -95,12 +144,12 @@ Use `data-slot` selectors for individual elements. `className` applies to both t
 | Custom header and leading visual | `pinote-header`, `pinote-leading`           |
 | Custom trigger content           | `pinote-icon`, `pinote-trigger-aside`       |
 
-Wrappers expose `data-state="open|closed"`. Panels expose `data-side`, `data-animation` and `data-leaving` during exit.
+Wrappers and triggers expose `data-state="open|closed"`. Panels expose `data-side`, `data-animation` and `data-leaving` during exit.
 
 Highlights trim extra font leading with `text-box` where supported. Override it on `pinote-highlight` when your typography needs different alignment.
 
 ## Portals
 
-Panels render in `document.body` by default. Set `portalContainer` on `PinoteLayer` to choose another element, or `portal={false}` to render beside the annotation.
+Panels render in `document.body` by default. Set `portalContainer` on `PinoteProvider` to choose another element, or `portal={false}` to render beside the annotation. Portals preserve React context, so content can still use `usePinote()`.
 
 Keep custom portal containers outside transformed, filtered or paint-containing ancestors. Those ancestors change fixed-position coordinates. Inline panels may be clipped by ancestor overflow. At viewport edges, keeping the panel visible takes priority over exact alignment with the marker.

@@ -2,7 +2,7 @@
 
 The Astro demo uses the local `react-pinote` workspace package. Each deployment includes the library from the same commit, which can differ from the latest npm release.
 
-The demo uses the default empty markers without passing `icon`. Author photos and conversation avatars are supplied explicitly.
+The React island wraps the landing in one `PinoteProvider`. `PinoteLayer` supplies the page-sized coordinate area. The photo pinote uses `render` with an app-styled button; the other pinotes use default markers without passing `icon`. Author photos and conversation avatars are supplied explicitly.
 
 The installation button copies `npm i react-pinote` and shows a checkmark for two seconds after a successful copy. If clipboard access fails, the command stays selectable and a message explains how to copy it manually. Reduced motion uses a crossfade for the icons.
 

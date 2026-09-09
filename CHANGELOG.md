@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0
+
+- Add `PinoteProvider` for shared open state, animation and portal defaults without a DOM wrapper. Attachments work anywhere inside the provider.
+- Make `PinoteLayer` a coordinate and drag area. Move its former state and configuration props to `PinoteProvider`, and rename `usePinoteLayer` to `usePinoteProvider`. See the [migration notes](README.md#upgrading-from-02).
+- Add `render` for custom button elements and render callbacks. Preserve custom refs and handlers, keyboard focus, positioning and dragging without default marker styling. Expansions measure rectangular custom triggers.
+- Update the landing's photo trigger and document root setup, Tailwind, shadcn buttons and trigger decoration.
+
 ## 0.2.0
 
 - Remove the built-in trigger icon. Markers are empty by default unless an author photo is supplied. Pass `icon` to add a custom visual.

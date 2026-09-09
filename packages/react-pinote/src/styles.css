@@ -101,7 +101,7 @@
     }
   }
 }
-.pn-t[data-dragging] {
+:is(.pn-t, .pn-r)[data-dragging] {
   cursor: grabbing;
 }
 @media (prefers-reduced-motion: reduce) {

@@ -1,4 +1,9 @@
-import { Pinote, PinoteHighlight } from "../dist/index.js";
+import {
+  Pinote,
+  PinoteHighlight,
+  PinoteProvider,
+  PinoteLayer,
+} from "../dist/index.js";
 import type {
   PinoteColor,
   PinoteAuthorPlacement,
@@ -43,6 +48,38 @@ export const attached = (
     <button>Save</button>
   </Pinote>
 );
+export const providerAndRender = (
+  <PinoteProvider animation="slide" onOpenChange={(id) => id?.toUpperCase()}>
+    <Pinote
+      id="custom-button"
+      content="App styling"
+      render={<button>Comment</button>}
+    >
+      <h1>Title</h1>
+    </Pinote>
+    <PinoteLayer
+      className="relative"
+      style={{ height: 200, "--pinote-size": "28px" }}
+    >
+      <Pinote
+        id="callback"
+        position="center"
+        content="Callback"
+        render={(props, state) => (
+          <button {...props}>
+            {state.isOpen ? "Open" : state.isDragging ? "Dragging" : "Closed"}
+          </button>
+        )}
+      />
+    </PinoteLayer>
+  </PinoteProvider>
+);
+export const wrongRender = (
+  // @ts-expect-error A render trigger must be a React element or render callback.
+  <Pinote id="bad-render" position="center" content="Bad" render="Comment" />
+);
+// @ts-expect-error Open state belongs to PinoteProvider, not the coordinate area.
+export const layerWithState = <PinoteLayer openId="legacy" />;
 export const wrongColor = (
   // @ts-expect-error Colors use hexadecimal strings, not named presets.
   <Pinote id="bad" content="Bad" position="center" color="blue" />

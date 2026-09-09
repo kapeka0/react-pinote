@@ -1,4 +1,6 @@
-import type { ComponentPropsWithoutRef, ReactNode, Ref } from "react";
+import type { ComponentPropsWithoutRef, ReactNode, RefObject } from "react";
+import { CustomTrigger } from "./custom-trigger";
+import type { PinoteRender, PinoteTriggerState } from "./types";
 import type { PinoteAuthor, PinoteAuthorPlacement } from "./types";
 
 type PinoteTriggerProps = Omit<
@@ -9,7 +11,9 @@ type PinoteTriggerProps = Omit<
   triggerAside: ReactNode;
   authorPlacement: PinoteAuthorPlacement;
   icon: ReactNode;
-  triggerRef: Ref<HTMLButtonElement>;
+  triggerRef: RefObject<HTMLButtonElement | null>;
+  render: PinoteRender | undefined;
+  state: PinoteTriggerState;
 };
 
 /** Visual trigger only; behavior comes from the interaction controller. */
@@ -19,8 +23,20 @@ export function PinoteTrigger({
   authorPlacement,
   icon,
   triggerRef,
+  render,
+  state,
   ...props
 }: PinoteTriggerProps) {
+  if (render)
+    return typeof render === "function" ? (
+      render({ ...props, ref: triggerRef }, state)
+    ) : (
+      <CustomTrigger
+        element={render}
+        triggerProps={props}
+        triggerRef={triggerRef}
+      />
+    );
   const beside = authorPlacement === "beside";
   const hasAside = triggerAside != null || (beside && author?.avatarUrl);
   const avatar = author?.avatarUrl ? (

@@ -16,4 +16,6 @@ Small annotations attached to a location or a piece of interface content.
 
 **Attachment**: The text or interface element to which a pinote is anchored.
 
-**Layer**: The area shared by a group of pinotes, with at most one open pinote.
+**Provider**: A group of pinotes that shares interaction settings and has at most one open pinote.
+
+**Layer**: The coordinate area in which standalone pinotes are placed and moved.

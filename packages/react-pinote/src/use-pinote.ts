@@ -18,8 +18,8 @@ export function usePinote() {
   return state;
 }
 
-/** Open or close a pinote from an app-owned toolbar inside its layer. */
-export function usePinoteLayer() {
+/** Open or close a pinote from anywhere inside its provider. */
+export function usePinoteProvider() {
   const { openId, open, close } = usePinoteContext();
   return { openId, open, close };
 }

@@ -188,6 +188,33 @@ html [data-slot="pinote-content"] {
 .photo-pinote[data-slot="pinote-content"] {
   padding: 6px;
 }
+.photo-trigger {
+  position: relative;
+  width: 25px;
+  height: 25px;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  background: #f8e5a4;
+  color: #45350e;
+  box-shadow: 0 3px 8px #0003;
+  cursor: pointer;
+}
+@media (pointer: coarse) {
+  .photo-trigger::after {
+    content: "";
+    position: absolute;
+    inset: -10px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  .photo-trigger {
+    transition: scale 140ms cubic-bezier(0.2, 0, 0, 1);
+  }
+  .photo-trigger:hover {
+    scale: 0.96;
+  }
+}
 .demo-photo {
   width: 248px;
   max-width: 100%;

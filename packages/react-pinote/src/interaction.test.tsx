@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
-import { Pinote, PinoteHighlight, PinoteLayer } from "./index";
+import { Pinote, PinoteHighlight, PinoteLayer, PinoteProvider } from "./index";
 
 describe.each(["coordinate", "highlight"] as const)(
   "%s keyboard interaction",
@@ -11,20 +11,22 @@ describe.each(["coordinate", "highlight"] as const)(
       const user = userEvent.setup();
       const content = <a href="#details">Read details</a>;
       render(
-        <PinoteLayer>
-          {kind === "coordinate" ? (
-            <Pinote
-              id="accessible"
-              position={{ x: 50, y: 50 }}
-              content={content}
-            />
-          ) : (
-            <PinoteHighlight id="accessible" content={content}>
-              A sentence
-            </PinoteHighlight>
-          )}
-          <button type="button">Next action</button>
-        </PinoteLayer>,
+        <PinoteProvider>
+          <PinoteLayer>
+            {kind === "coordinate" ? (
+              <Pinote
+                id="accessible"
+                position={{ x: 50, y: 50 }}
+                content={content}
+              />
+            ) : (
+              <PinoteHighlight id="accessible" content={content}>
+                A sentence
+              </PinoteHighlight>
+            )}
+            <button type="button">Next action</button>
+          </PinoteLayer>
+        </PinoteProvider>,
       );
       await user.tab();
       const trigger = screen.getByRole("button", { name: "Open pinote" });
@@ -40,19 +42,21 @@ describe.each(["coordinate", "highlight"] as const)(
     it("keeps the preview available while moving into its content", async () => {
       const user = userEvent.setup();
       render(
-        <PinoteLayer>
-          {kind === "coordinate" ? (
-            <Pinote
-              id="hover"
-              position={{ x: 50, y: 50 }}
-              content="Readable preview"
-            />
-          ) : (
-            <PinoteHighlight id="hover" content="Readable preview">
-              Marked copy
-            </PinoteHighlight>
-          )}
-        </PinoteLayer>,
+        <PinoteProvider>
+          <PinoteLayer>
+            {kind === "coordinate" ? (
+              <Pinote
+                id="hover"
+                position={{ x: 50, y: 50 }}
+                content="Readable preview"
+              />
+            ) : (
+              <PinoteHighlight id="hover" content="Readable preview">
+                Marked copy
+              </PinoteHighlight>
+            )}
+          </PinoteLayer>
+        </PinoteProvider>,
       );
       const trigger = screen.getByRole("button", { name: "Open pinote" });
       await user.hover(trigger);

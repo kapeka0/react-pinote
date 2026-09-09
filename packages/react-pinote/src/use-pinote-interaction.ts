@@ -116,6 +116,7 @@ export function usePinoteInteraction({
     if (latest.current.openId === id) latest.current.close();
   }, [id, restoreFocus]);
   const toggle = () => {
+    if (triggerRef.current?.disabled) return;
     if (isOpen && context.persistent) close();
     else open();
   };
@@ -123,6 +124,7 @@ export function usePinoteInteraction({
     cancelDismiss();
     if (
       allowPreview &&
+      !triggerRef.current?.disabled &&
       !suppressFocus.current &&
       !waitForLeave.current &&
       !active.current

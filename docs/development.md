@@ -26,7 +26,7 @@ pnpm test:e2e
 
 Browser tests use the built package with React 18 and 19 on Chromium, including mobile emulation. CSS targets Chrome 123+, Firefox 120+ and Safari 17.5+; those latter browsers are not part of the automated suite.
 
-The size check limits JavaScript to under 6,500 bytes gzip and CSS to under 2,100 bytes minified, excluding React and source maps.
+The size check limits JavaScript to under 7,000 bytes gzip and CSS to under 2,100 bytes minified, excluding React and source maps. The JavaScript budget includes provider state and custom trigger composition, with no added runtime dependencies.
 
 ## Local package
 

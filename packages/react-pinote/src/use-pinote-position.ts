@@ -8,6 +8,7 @@ type FloatingPosition = {
   side: PinoteSide;
   style: CSSProperties;
   anchorCenter: { x: number; y: number };
+  anchorSize: { width: number; height: number };
 };
 
 const GAP = 12;
@@ -28,6 +29,7 @@ export function usePinotePosition(
   const [position, setPosition] = useState<FloatingPosition>({
     side: "right",
     anchorCenter: { x: 0, y: 0 },
+    anchorSize: { width: 25, height: 25 },
     style: { left: 0, position: "fixed", top: 0, visibility: "hidden" },
   });
 
@@ -102,6 +104,7 @@ export function usePinotePosition(
       );
       setPosition({
         side,
+        anchorSize: { width: trigger.width, height: trigger.height },
         anchorCenter: {
           x: trigger.left + trigger.width / 2 - left,
           y: trigger.top + trigger.height / 2 - top,

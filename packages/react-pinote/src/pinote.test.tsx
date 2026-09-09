@@ -2,22 +2,24 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { Pinote, PinoteLayer } from "./index";
+import { Pinote, PinoteLayer, PinoteProvider } from "./index";
 
 describe("Pinote", () => {
   it("keeps a custom icon beside the author avatar", async () => {
     const user = userEvent.setup();
     render(
-      <PinoteLayer>
-        <Pinote
-          id="beside"
-          position="center"
-          author={{ name: "Maya", avatarUrl: "/maya.webp" }}
-          authorPlacement="beside"
-          icon="1"
-          content="Side author"
-        />
-      </PinoteLayer>,
+      <PinoteProvider>
+        <PinoteLayer>
+          <Pinote
+            id="beside"
+            position="center"
+            author={{ name: "Maya", avatarUrl: "/maya.webp" }}
+            authorPlacement="beside"
+            icon="1"
+            content="Side author"
+          />
+        </PinoteLayer>
+      </PinoteProvider>,
     );
     const trigger = screen.getByRole("button", {
       name: "Open pinote from Maya",
@@ -34,14 +36,16 @@ describe("Pinote", () => {
   it("allows explicit activation without hover or focus previews", async () => {
     const user = userEvent.setup();
     render(
-      <PinoteLayer>
-        <Pinote
-          id="click"
-          position="center"
-          preview={false}
-          content="Click content"
-        />
-      </PinoteLayer>,
+      <PinoteProvider>
+        <PinoteLayer>
+          <Pinote
+            id="click"
+            position="center"
+            preview={false}
+            content="Click content"
+          />
+        </PinoteLayer>
+      </PinoteProvider>,
     );
     const trigger = screen.getByRole("button", { name: "Open pinote" });
     await user.hover(trigger);
@@ -62,20 +66,22 @@ describe("Pinote", () => {
     const outside = vi.fn();
     render(
       <>
-        <PinoteLayer>
-          <Pinote
-            id="events"
-            position="center"
-            preview={false}
-            onInteractOutside={outside}
-            content={
-              <>
-                <button>Reply</button>
-                <button>Save</button>
-              </>
-            }
-          />
-        </PinoteLayer>
+        <PinoteProvider>
+          <PinoteLayer>
+            <Pinote
+              id="events"
+              position="center"
+              preview={false}
+              onInteractOutside={outside}
+              content={
+                <>
+                  <button>Reply</button>
+                  <button>Save</button>
+                </>
+              }
+            />
+          </PinoteLayer>
+        </PinoteProvider>
         <button>Continue</button>
       </>,
     );
@@ -101,14 +107,16 @@ describe("Pinote", () => {
   it("allows apps to cancel outside pointer dismissal", async () => {
     const user = userEvent.setup();
     render(
-      <PinoteLayer>
-        <Pinote
-          id="keep"
-          position="center"
-          onInteractOutside={(event) => event.preventDefault()}
-          content="Keep open"
-        />
-      </PinoteLayer>,
+      <PinoteProvider>
+        <PinoteLayer>
+          <Pinote
+            id="keep"
+            position="center"
+            onInteractOutside={(event) => event.preventDefault()}
+            content="Keep open"
+          />
+        </PinoteLayer>
+      </PinoteProvider>,
     );
     await user.click(screen.getByRole("button", { name: "Open pinote" }));
     await user.click(document.body);
@@ -119,13 +127,15 @@ describe("Pinote", () => {
     const user = userEvent.setup();
 
     render(
-      <PinoteLayer>
-        <Pinote
-          id="anonymous-copy"
-          position={{ x: 25, y: 40 }}
-          content="Tighten this sentence."
-        />
-      </PinoteLayer>,
+      <PinoteProvider>
+        <PinoteLayer>
+          <Pinote
+            id="anonymous-copy"
+            position={{ x: 25, y: 40 }}
+            content="Tighten this sentence."
+          />
+        </PinoteLayer>
+      </PinoteProvider>,
     );
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -142,13 +152,15 @@ describe("Pinote", () => {
     const user = userEvent.setup();
 
     render(
-      <PinoteLayer>
-        <Pinote
-          id="persistent-copy"
-          position={{ x: 50, y: 50 }}
-          content="This stays open."
-        />
-      </PinoteLayer>,
+      <PinoteProvider>
+        <PinoteLayer>
+          <Pinote
+            id="persistent-copy"
+            position={{ x: 50, y: 50 }}
+            content="This stays open."
+          />
+        </PinoteLayer>
+      </PinoteProvider>,
     );
 
     const trigger = screen.getByRole("button", { name: "Open pinote" });
@@ -162,19 +174,25 @@ describe("Pinote", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("reports changes while a controlled layer keeps ownership of open state", async () => {
+  it("reports changes while a controlled provider keeps ownership of open state", async () => {
     const user = userEvent.setup();
     const onOpenChange = vi.fn();
 
     render(
-      <PinoteLayer openId="first" onOpenChange={onOpenChange}>
-        <Pinote id="first" position={{ x: 20, y: 20 }} content="First pinote" />
-        <Pinote
-          id="second"
-          position={{ x: 80, y: 80 }}
-          content="Second pinote"
-        />
-      </PinoteLayer>,
+      <PinoteProvider openId="first" onOpenChange={onOpenChange}>
+        <PinoteLayer>
+          <Pinote
+            id="first"
+            position={{ x: 20, y: 20 }}
+            content="First pinote"
+          />
+          <Pinote
+            id="second"
+            position={{ x: 80, y: 80 }}
+            content="Second pinote"
+          />
+        </PinoteLayer>
+      </PinoteProvider>,
     );
 
     expect(screen.getByRole("dialog")).toHaveTextContent("First pinote");
@@ -191,14 +209,16 @@ describe("Pinote", () => {
     const user = userEvent.setup();
 
     render(
-      <PinoteLayer>
-        <Pinote
-          author={{ name: "Ada", avatarUrl: "/ada.png" }}
-          id="authored-copy"
-          position={{ x: 40, y: 60 }}
-          content="Ship the clearer version."
-        />
-      </PinoteLayer>,
+      <PinoteProvider>
+        <PinoteLayer>
+          <Pinote
+            author={{ name: "Ada", avatarUrl: "/ada.png" }}
+            id="authored-copy"
+            position={{ x: 40, y: 60 }}
+            content="Ship the clearer version."
+          />
+        </PinoteLayer>
+      </PinoteProvider>,
     );
 
     const trigger = screen.getByRole("button", {
@@ -215,15 +235,17 @@ describe("Pinote", () => {
 
   it("lets a custom icon override the authored trigger avatar", () => {
     render(
-      <PinoteLayer>
-        <Pinote
-          author={{ name: "Grace", avatarUrl: "/grace.png" }}
-          icon={<svg data-testid="custom-spark" />}
-          id="custom-icon"
-          position={{ x: 10, y: 90 }}
-          content="Custom icon content"
-        />
-      </PinoteLayer>,
+      <PinoteProvider>
+        <PinoteLayer>
+          <Pinote
+            author={{ name: "Grace", avatarUrl: "/grace.png" }}
+            icon={<svg data-testid="custom-spark" />}
+            id="custom-icon"
+            position={{ x: 10, y: 90 }}
+            content="Custom icon content"
+          />
+        </PinoteLayer>
+      </PinoteProvider>,
     );
 
     const trigger = screen.getByRole("button", {
@@ -238,13 +260,15 @@ describe("Pinote", () => {
     const user = userEvent.setup();
 
     render(
-      <PinoteLayer>
-        <Pinote
-          id="keyboard-copy"
-          position={{ x: 35, y: 35 }}
-          content="Keyboard reachable content"
-        />
-      </PinoteLayer>,
+      <PinoteProvider>
+        <PinoteLayer>
+          <Pinote
+            id="keyboard-copy"
+            position={{ x: 35, y: 35 }}
+            content="Keyboard reachable content"
+          />
+        </PinoteLayer>
+      </PinoteProvider>,
     );
 
     await user.tab();
@@ -258,13 +282,15 @@ describe("Pinote", () => {
     const user = userEvent.setup();
 
     render(
-      <PinoteLayer>
-        <Pinote
-          id="outside-copy"
-          position={{ x: 60, y: 30 }}
-          content="Close me from outside."
-        />
-      </PinoteLayer>,
+      <PinoteProvider>
+        <PinoteLayer>
+          <Pinote
+            id="outside-copy"
+            position={{ x: 60, y: 30 }}
+            content="Close me from outside."
+          />
+        </PinoteLayer>
+      </PinoteProvider>,
     );
 
     await user.click(screen.getByRole("button", { name: "Open pinote" }));
@@ -279,13 +305,15 @@ describe("Pinote", () => {
     const user = userEvent.setup();
 
     render(
-      <PinoteLayer portal={false}>
-        <Pinote
-          id="inline-copy"
-          position={{ x: 50, y: 50 }}
-          content="Inline content"
-        />
-      </PinoteLayer>,
+      <PinoteProvider portal={false}>
+        <PinoteLayer>
+          <Pinote
+            id="inline-copy"
+            position={{ x: 50, y: 50 }}
+            content="Inline content"
+          />
+        </PinoteLayer>
+      </PinoteProvider>,
     );
 
     await user.hover(screen.getByRole("button", { name: "Open pinote" }));
@@ -300,14 +328,16 @@ describe("Pinote", () => {
     const user = userEvent.setup();
 
     render(
-      <PinoteLayer>
-        <Pinote
-          animation="fade"
-          id="animated-copy"
-          position={{ x: 45, y: 55 }}
-          content="Fade this content in."
-        />
-      </PinoteLayer>,
+      <PinoteProvider>
+        <PinoteLayer>
+          <Pinote
+            animation="fade"
+            id="animated-copy"
+            position={{ x: 45, y: 55 }}
+            content="Fade this content in."
+          />
+        </PinoteLayer>
+      </PinoteProvider>,
     );
 
     await user.hover(screen.getByRole("button", { name: "Open pinote" }));
@@ -341,13 +371,15 @@ describe("Pinote", () => {
       });
 
     render(
-      <PinoteLayer>
-        <Pinote
-          id="edge-copy"
-          position={{ x: 98, y: 40 }}
-          content="Stay inside the viewport."
-        />
-      </PinoteLayer>,
+      <PinoteProvider>
+        <PinoteLayer>
+          <Pinote
+            id="edge-copy"
+            position={{ x: 98, y: 40 }}
+            content="Stay inside the viewport."
+          />
+        </PinoteLayer>
+      </PinoteProvider>,
     );
 
     await user.hover(screen.getByRole("button", { name: "Open pinote" }));
@@ -362,13 +394,15 @@ describe("Pinote", () => {
 
   it("renders an empty anonymous trigger when no icon is supplied", () => {
     render(
-      <PinoteLayer>
-        <Pinote
-          id="note"
-          position={{ x: 25, y: 40 }}
-          content="Could this sentence be shorter?"
-        />
-      </PinoteLayer>,
+      <PinoteProvider>
+        <PinoteLayer>
+          <Pinote
+            id="note"
+            position={{ x: 25, y: 40 }}
+            content="Could this sentence be shorter?"
+          />
+        </PinoteLayer>
+      </PinoteProvider>,
     );
 
     const trigger = screen.getByRole("button", { name: "Open pinote" });

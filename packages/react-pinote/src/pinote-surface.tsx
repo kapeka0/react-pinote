@@ -2,6 +2,8 @@ import { useEffect, useId, useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { PinoteTrigger } from "./pinote-trigger";
+import { pinoteTriggerStyle } from "./pinote-trigger-style";
+import { pinoteClip, pinoteCorner, pinoteRadius } from "./pinote-shape";
 import { usePinotePosition } from "./use-pinote-position";
 import { usePortalTheme } from "./use-portal-theme";
 import { usePresence } from "./use-presence";
@@ -32,6 +34,7 @@ export function PinoteSurface({
   triggerAside,
   authorPlacement = "inside",
   icon,
+  render,
   animation,
   variant = "popover",
   orientation = "auto",
@@ -55,18 +58,11 @@ export function PinoteSurface({
   const Root = attached && !highlight ? "div" : "span";
   const contentId = useId();
   const expand = variant === "expand";
-  const corner =
-    orientation === "auto"
-      ? attached
-        ? `${point.y <= 50 ? "bottom" : "top"}-${point.x < 50 ? "right" : "left"}`
-        : "bottom-left"
-      : orientation;
-  const shape = (radius: string) =>
-    ["top-left", "top-right", "bottom-right", "bottom-left"]
-      .map((value) => (value === corner ? "0" : radius))
-      .join(" ");
-  const cardRadius = shape("var(--pinote-radius,var(--radius,12px))");
-  const clip = `inset(${["bottom", "left", "top", "right"].map((edge) => (corner.includes(edge) ? "calc(100% - var(--pinote-size,25px))" : "0")).join(" ")} round ${cardRadius})`;
+  const corner = pinoteCorner(orientation, point, attached);
+  const cardRadius = pinoteRadius(
+    corner,
+    "var(--pinote-radius,var(--radius,12px))",
+  );
   const appearance = { "--pn-bg": color, ...style } as CSSProperties;
   const visible = usePresence(isOpen, contentRef);
   const [entered, setEntered] = useState(false);
@@ -80,6 +76,11 @@ export function PinoteSurface({
     portalRoot,
     point,
     expand ? corner : false,
+  );
+  const clip = pinoteClip(
+    corner,
+    cardRadius,
+    render ? floating.anchorSize : undefined,
   );
   usePortalTheme(visible, rootRef, contentRef, portalRoot);
 
@@ -328,7 +329,7 @@ export function PinoteSurface({
           ref={anchorRef}
           className="pn-a"
           data-slot="pinote-anchor"
-          {...(!highlight ? interaction.hoverProps : {})}
+          {...(!highlight && !render ? interaction.hoverProps : {})}
           style={{
             display: "inline-grid",
             verticalAlign: "middle",
@@ -346,6 +347,9 @@ export function PinoteSurface({
         >
           <PinoteTrigger
             {...interaction.triggerProps}
+            {...(render ? interaction.hoverProps : {})}
+            render={render}
+            state={{ ...interaction.state, isDragging: dragging }}
             author={author}
             triggerAside={triggerAside}
             authorPlacement={authorPlacement}
@@ -355,27 +359,27 @@ export function PinoteSurface({
             aria-haspopup="dialog"
             aria-label={
               label ??
-              (author ? `Open pinote from ${author.name}` : "Open pinote")
+              (render
+                ? undefined
+                : author
+                  ? `Open pinote from ${author.name}`
+                  : "Open pinote")
             }
             data-slot="pinote-trigger"
+            data-state={isOpen ? "open" : "closed"}
             data-orientation={corner}
             data-entrance={context.ready ? entranceAnimation : "none"}
             data-draggable={draggable ? "" : undefined}
-            className="pn-t"
-            style={{
-              touchAction: draggable ? "none" : undefined,
-              opacity: expand && visible && entered ? 0 : undefined,
-              // Swap the marker and expansion in one frame, without cross-fading.
-              transitionProperty: expand ? "scale" : undefined,
-              visibility:
-                !context.ready && entranceAnimation === "pop"
-                  ? "hidden"
-                  : undefined,
-              transformOrigin: highlight
-                ? `${point.x < 50 ? "100%" : point.x > 50 ? "0%" : "50%"} ${point.y <= 50 ? "100%" : "0%"}`
-                : undefined,
-              borderRadius: `var(--pinote-trigger-radius, ${shape("50%")})`,
-            }}
+            className={render ? "pn-r" : "pn-t"}
+            style={pinoteTriggerStyle({
+              draggable,
+              expand,
+              hidden: expand && visible && entered,
+              entering: !context.ready && entranceAnimation === "pop",
+              highlight: highlight ? point : undefined,
+              custom: !!render,
+              corner,
+            })}
             triggerRef={triggerRef}
             type="button"
           />

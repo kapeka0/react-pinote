@@ -14,11 +14,16 @@ export type {
   PinotePlacement,
   PinotePosition,
   PinoteVariant,
+  PinoteRender,
+  PinoteTriggerProps,
+  PinoteTriggerState,
 } from "./types";
 export { PinoteHighlight } from "./pinote-highlight";
 export type { PinoteHighlightProps } from "./pinote-highlight";
 export { PinoteLayer } from "./pinote-layer";
 export type { PinoteLayerProps } from "./pinote-layer";
+export { PinoteProvider } from "./pinote-provider";
+export type { PinoteProviderProps } from "./pinote-provider";
 export { getPinotePosition } from "./position";
-export { usePinote, usePinoteLayer } from "./use-pinote";
+export { usePinote, usePinoteProvider } from "./use-pinote";
 export type { PinoteState } from "./use-pinote";

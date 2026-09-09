@@ -1,4 +1,20 @@
-import type { CSSProperties, ReactNode, RefObject } from "react";
+import type {
+  ComponentPropsWithRef,
+  CSSProperties,
+  ReactElement,
+  ReactNode,
+  RefObject,
+} from "react";
+import type { PinoteState } from "./use-pinote";
+
+/** Spread these props onto one native button or a component that forwards them. */
+export type PinoteTriggerProps = ComponentPropsWithRef<"button"> & {
+  [key: `data-${string}`]: string | undefined;
+};
+export type PinoteTriggerState = PinoteState & { isDragging: boolean };
+export type PinoteRender =
+  | ReactElement
+  | ((props: PinoteTriggerProps, state: PinoteTriggerState) => ReactElement);
 
 /** Percentages of the layer's area, measured from the top-left corner. */
 export type PinotePosition = { x: number; y: number };
@@ -35,7 +51,7 @@ export type PinoteAppearance = {
   preview?: boolean;
   /** Reports outside pointer presses and focus leaving the trigger/content, including while closed. */
   onInteractOutside?: (event: PointerEvent | FocusEvent) => void;
-  /** Message-opening animation; inherits the layer setting. */
+  /** Message-opening animation; inherits the provider setting. */
   animation?: PinoteAnimation;
   /** Omit for an anonymous pinote with no user information. */
   author?: PinoteAuthor;
@@ -43,7 +59,7 @@ export type PinoteAppearance = {
   header?: ReactNode;
   /** Custom leading visual, replacing the content avatar. Pass null to omit it. */
   leading?: ReactNode;
-  /** Custom visual beside the marker, replacing the side avatar. App-owned content. */
+  /** Non-interactive visual beside the default marker, replacing the side avatar. */
   triggerAside?: ReactNode;
   /** Optional custom focus target when explicitly opened. Hover never moves focus. */
   initialFocusRef?: RefObject<HTMLElement | null>;
@@ -53,7 +69,9 @@ export type PinoteAppearance = {
   content: ReactNode;
   /** Optional trigger icon, replacing the inside avatar. Omit for an avatar or empty marker; null hides both. */
   icon?: ReactNode;
-  /** Stable identifier, unique within this layer. */
+  /** Replace the entire trigger with an app-styled button. Children remain the annotation target. */
+  render?: PinoteRender;
+  /** Stable identifier, unique within this provider. */
   id: string;
   className?: string;
   style?: CSSProperties & {
