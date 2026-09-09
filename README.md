@@ -2,7 +2,7 @@
 
 React annotations attached to a position, a component or a word. Hover to preview. Click to keep the content open.
 
-Supports React 18 and 19. Includes TypeScript types and CSS. React and React DOM are the only runtime dependencies.
+Compatible with React 18, React 19 and [shadcn/ui](docs/styling.md#shadcn-and-dark-mode). Includes TypeScript types and CSS. React and React DOM are the only runtime dependencies.
 
 [API reference](docs/api.md) · [Styling](docs/styling.md) · [Development](docs/development.md)
 

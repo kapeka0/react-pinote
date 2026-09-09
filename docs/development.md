@@ -11,10 +11,6 @@ pnpm dev
 
 The Astro demo runs at `http://127.0.0.1:4321`. Library changes rebuild through the watch process.
 
-The landing uses the local `react-pinote` workspace package, so each deployment includes the library from the same commit. It does not fetch the latest npm release.
-
-Its installation button copies `npm i react-pinote` and shows a checkmark for two seconds after a successful copy. If clipboard access fails, the command stays selectable and a message explains how to copy it manually. Reduced motion uses a crossfade for the icons.
-
 ## Checks
 
 ```sh
@@ -63,14 +59,3 @@ git push origin main v0.1.1
 The workflow checks the project and verifies that the tag matches `package.json` before publishing. npm generates provenance for these GitHub Actions releases. The initial manual release does not have provenance.
 
 See [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/) for the registry requirements.
-
-## Landing deployment
-
-The Vercel project is `react-pinote` in `kape-team`, on the existing Pro plan. It builds from the repository root using `vercel.json` and publishes `apps/demo/dist`. GitHub pushes to `main` deploy to production.
-
-To deploy with the CLI:
-
-```sh
-vercel link --yes --scope kape-team --project react-pinote
-vercel deploy --prod --scope kape-team
-```
