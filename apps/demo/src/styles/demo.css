@@ -1,14 +1,25 @@
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("@fontsource-variable/inter/files/inter-latin-wght-normal.woff2")
+    format("woff2");
+}
+
 :root {
-  color-scheme: light dark;
-  --background: light-dark(oklch(0.985 0 0), oklch(0.145 0 0));
-  --foreground: light-dark(oklch(0.205 0 0), oklch(0.985 0 0));
+  color-scheme: light;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0 0 0);
+  --muted-foreground: oklch(0.4 0 0);
   --popover: light-dark(oklch(1 0 0), oklch(0.205 0 0));
-  --popover-foreground: var(--foreground);
+  --popover-foreground: light-dark(oklch(0.205 0 0), oklch(0.985 0 0));
   --border: light-dark(oklch(0.86 0 0), oklch(0.38 0 0));
   --radius: 0.75rem;
   background: var(--background);
   color: var(--foreground);
   font-family:
+    "Inter",
     system-ui,
     -apple-system,
     BlinkMacSystemFont,
@@ -17,37 +28,99 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-:root.dark {
-  color-scheme: dark;
-}
-:root.light {
-  color-scheme: light;
-}
 body {
   margin: 0;
 }
 .demo {
+  --pinote-entrance-delay: 500ms;
   display: grid;
   place-items: center;
   min-height: 100svh;
   min-height: max(28rem, 100svh);
   isolation: isolate;
 }
+.intro {
+  display: grid;
+  justify-items: center;
+  gap: 1.25rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
 .wordmark {
   margin: 0;
-  padding: 2rem;
-  font-size: clamp(1.8rem, 5vw, 4rem);
-  font-weight: 500;
-  line-height: 1.2;
+  font-size: clamp(2rem, 6vw, 4.5rem);
+  font-weight: 900;
+  line-height: 1.1;
   letter-spacing: -0.055em;
   white-space: nowrap;
 }
 .wordmark [data-slot="pinote-highlight-text"] {
   text-decoration-thickness: 2px;
-  text-decoration-color: light-dark(oklch(0.65 0 0), oklch(0.55 0 0));
+  text-decoration-color: oklch(0.65 0 0);
   text-underline-offset: 0.2em;
+}
+.description {
+  max-width: 34ch;
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+html [data-slot="pinote-content"] {
+  font-family: inherit;
 }
 ::selection {
   background: #f8e5a4;
   color: #45350e;
+}
+
+.demo-avatar-stack {
+  display: block;
+  position: relative;
+  height: var(--pinote-size, 25px);
+}
+.demo-avatar-stack > img {
+  position: absolute;
+  top: 0;
+  width: var(--pinote-size, 25px);
+  height: 100%;
+  outline: 1px solid var(--pn-s);
+}
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  .demo-avatar-stack > img {
+    transition: translate var(--pinote-duration, 140ms);
+  }
+  [data-slot="pinote-trigger"]:hover .demo-avatar-stack > img {
+    translate: var(--demo-avatar-reveal);
+  }
+}
+.demo-conversation p {
+  margin: 0;
+}
+.demo-conversation-count {
+  display: block;
+  margin-block-start: 8px;
+  font-size: 0.75rem;
+}
+.demo-conversation ol {
+  display: grid;
+  gap: 18px;
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+}
+.demo-comment-author {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-block-end: 6px;
+  font-weight: 600;
+}
+.demo-comment-author img {
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  object-fit: cover;
 }

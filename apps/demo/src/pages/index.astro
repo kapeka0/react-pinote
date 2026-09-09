@@ -1,22 +1,49 @@
 ---
 import Demo from "../components/Demo";
+import { getImage } from "astro:assets";
+import kapekaPhoto from "../assets/kapeka.jpg";
+import codexLogo from "../assets/codex.svg?url&no-inline";
+import claudeLogo from "../assets/claude.svg?url&no-inline";
+import kimiLogo from "../assets/kimi.svg?url&no-inline";
+import interFont from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
 import "../styles/demo.css";
+const kapeka = await getImage({
+  src: kapekaPhoto,
+  width: 96,
+  height: 96,
+  format: "webp",
+});
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" class="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Small notes, right where they belong. An interactive react-pinote demo."
+      content="Lightweight annotations for your React UI. An interactive react-pinote demo."
     />
-    <meta name="color-scheme" content="light dark" />
+    <meta name="color-scheme" content="light" />
     <title>react-pinote</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="data:," />
+    <link
+      rel="preload"
+      href={interFont}
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
   </head>
   <body>
-    <main><Demo client:load /></main>
+    <main>
+      <Demo
+        kapekaAvatarUrl={kapeka.src}
+        codexAvatarUrl={codexLogo}
+        claudeAvatarUrl={claudeLogo}
+        kimiAvatarUrl={kimiLogo}
+        client:load
+      />
+    </main>
   </body>
 </html>
