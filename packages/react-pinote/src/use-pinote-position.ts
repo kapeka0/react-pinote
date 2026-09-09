@@ -6,6 +6,7 @@ export type PinoteSide = "bottom" | "left" | "right" | "top";
 
 type FloatingPosition = {
   side: PinoteSide;
+  corner?: string | false;
   style: CSSProperties;
   anchorCenter: { x: number; y: number };
   anchorSize: { width: number; height: number };
@@ -14,8 +15,26 @@ type FloatingPosition = {
 const GAP = 12;
 const VIEWPORT_PADDING = 12;
 
-function clamp(value: number, minimum: number, maximum: number) {
-  return Math.min(Math.max(value, minimum), Math.max(minimum, maximum));
+/** Keep at least half the preferred size before choosing the other direction. */
+function fitExpansionWidth(
+  panel: HTMLElement,
+  start: number,
+  end: number,
+  viewport: number,
+  atStart: boolean,
+  flip: boolean,
+) {
+  const after = viewport - start - VIEWPORT_PADDING;
+  const before = end - VIEWPORT_PADDING;
+  const size = panel.offsetWidth;
+  const room = atStart ? after : before;
+  if (flip && room < Math.min(size / 2, atStart ? before : after))
+    atStart = !atStart;
+  panel.style.setProperty(
+    "--pn-w",
+    `${Math.max(end - start, atStart ? after : before)}px`,
+  );
+  return atStart;
 }
 
 export function usePinotePosition(
@@ -25,12 +44,13 @@ export function usePinotePosition(
   portalRoot: HTMLElement | null | false,
   anchorPosition: PinotePosition,
   alignCorner: string | false,
+  autoCorner: boolean,
 ) {
   const [position, setPosition] = useState<FloatingPosition>({
     side: "right",
     anchorCenter: { x: 0, y: 0 },
-    anchorSize: { width: 25, height: 25 },
-    style: { left: 0, position: "fixed", top: 0, visibility: "hidden" },
+    anchorSize: { width: 0, height: 0 },
+    style: { position: "fixed", visibility: "hidden" },
   });
 
   useEffect(() => {
@@ -39,72 +59,86 @@ export function usePinotePosition(
     }
 
     const updatePosition = () => {
-      if (!anchorRef.current || !contentRef.current) {
+      const anchor = anchorRef.current;
+      const panel = contentRef.current;
+      if (!anchor || !panel) {
         return;
       }
 
-      const trigger = anchorRef.current.getBoundingClientRect();
+      const trigger = anchor.getBoundingClientRect();
+      const { innerWidth: width, innerHeight: height } = window;
       // Include overflowing trigger decoration for a separate popover.
       if (!alignCorner)
         trigger.width *= Math.max(
           1,
-          anchorRef.current.scrollWidth / anchorRef.current.clientWidth || 1,
+          anchor.scrollWidth / anchor.clientWidth || 1,
         );
-      const measured = contentRef.current.getBoundingClientRect();
+      let corner = alignCorner;
+      if (corner) {
+        // Measure the preferred width again after resize or a content change.
+        panel.style.removeProperty("--pn-w");
+        panel.style.removeProperty("--pn-h");
+        const left = fitExpansionWidth(
+          panel,
+          trigger.left,
+          trigger.right,
+          width,
+          corner.includes("left"),
+          autoCorner,
+        );
+        // Preserve the vertical attachment as wrapped content grows or scrolls.
+        const top = corner.includes("top");
+        panel.style.setProperty(
+          "--pn-h",
+          `${Math.max(trigger.height, (top ? height - trigger.top : trigger.bottom) - VIEWPORT_PADDING)}px`,
+        );
+        corner = `${top ? "top" : "bottom"}-${left ? "left" : "right"}`;
+      }
       // offset sizes exclude the opening scale animation.
-      const content = {
-        width: contentRef.current.offsetWidth || measured.width,
-        height: contentRef.current.offsetHeight || measured.height,
-      };
-      const available = {
-        bottom: window.innerHeight - trigger.bottom,
-        left: trigger.left,
-        right: window.innerWidth - trigger.right,
-        top: trigger.top,
-      };
+      const contentWidth = panel.offsetWidth;
+      const contentHeight = panel.offsetHeight;
       const side: PinoteSide =
-        available.right >= content.width + GAP + VIEWPORT_PADDING
+        width - trigger.right >= contentWidth + GAP + VIEWPORT_PADDING
           ? "right"
-          : available.left >= content.width + GAP + VIEWPORT_PADDING
+          : trigger.left >= contentWidth + GAP + VIEWPORT_PADDING
             ? "left"
-            : available.bottom >= content.height + GAP + VIEWPORT_PADDING
+            : height - trigger.bottom >= contentHeight + GAP + VIEWPORT_PADDING
               ? "bottom"
               : "top";
 
-      let left = trigger.right + GAP;
-      let top = trigger.top + trigger.height / 2 - content.height / 2;
+      const horizontal = side === "left" || side === "right";
+      let left = horizontal
+        ? side === "left"
+          ? trigger.left - contentWidth - GAP
+          : trigger.right + GAP
+        : trigger.left + (trigger.width - contentWidth) / 2;
+      let top = horizontal
+        ? trigger.top + (trigger.height - contentHeight) / 2
+        : side === "top"
+          ? trigger.top - contentHeight - GAP
+          : trigger.bottom + GAP;
 
-      if (side === "left") {
-        left = trigger.left - content.width - GAP;
-      } else if (side === "bottom") {
-        left = trigger.left + trigger.width / 2 - content.width / 2;
-        top = trigger.bottom + GAP;
-      } else if (side === "top") {
-        left = trigger.left + trigger.width / 2 - content.width / 2;
-        top = trigger.top - content.height - GAP;
-      }
-
-      if (alignCorner) {
-        left = alignCorner.includes("left")
+      if (corner) {
+        left = corner.includes("left")
           ? trigger.left
-          : trigger.right - content.width;
-        top = alignCorner.includes("top")
+          : trigger.right - contentWidth;
+        top = corner.includes("top")
           ? trigger.top
-          : trigger.bottom - content.height;
+          : trigger.bottom - contentHeight;
+      } else {
+        left = Math.max(
+          VIEWPORT_PADDING,
+          Math.min(left, width - contentWidth - VIEWPORT_PADDING),
+        );
+        top = Math.max(
+          VIEWPORT_PADDING,
+          Math.min(top, height - contentHeight - VIEWPORT_PADDING),
+        );
       }
-      left = clamp(
-        left,
-        VIEWPORT_PADDING,
-        window.innerWidth - content.width - VIEWPORT_PADDING,
-      );
-      top = clamp(
-        top,
-        VIEWPORT_PADDING,
-        window.innerHeight - content.height - VIEWPORT_PADDING,
-      );
       setPosition({
         side,
-        anchorSize: { width: trigger.width, height: trigger.height },
+        corner,
+        anchorSize: trigger,
         anchorCenter: {
           x: trigger.left + trigger.width / 2 - left,
           y: trigger.top + trigger.height / 2 - top,
@@ -113,15 +147,13 @@ export function usePinotePosition(
           left,
           position: "fixed",
           top,
-          transformOrigin:
-            side[0] === "r"
-              ? "left"
-              : side[0] === "l"
-                ? "right"
-                : side[0] === "t"
-                  ? "bottom"
-                  : "top",
-          visibility: "visible",
+          transformOrigin: horizontal
+            ? side === "left"
+              ? "right"
+              : "left"
+            : side === "top"
+              ? "bottom"
+              : "top",
         },
       });
     };
@@ -160,6 +192,7 @@ export function usePinotePosition(
     anchorPosition.x,
     anchorPosition.y,
     alignCorner,
+    autoCorner,
   ]);
 
   return position;

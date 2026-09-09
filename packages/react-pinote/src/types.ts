@@ -43,7 +43,7 @@ export type PinoteAppearance = {
   variant?: PinoteVariant;
   /** Shared hexadecimal marker/message background. Omit for the neutral default. */
   color?: PinoteColor;
-  /** Pointed corner; auto points toward the attachment. Icons stay upright. @default "auto" */
+  /** Pointed corner. Auto points toward attachments and can flip an expansion to fit. @default "auto" */
   orientation?: PinoteOrientation;
   /** One-shot marker entrance, separate from the message animation. Respects reduced motion. @default "pop" */
   entranceAnimation?: PinoteEntranceAnimation;

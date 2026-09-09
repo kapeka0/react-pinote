@@ -906,6 +906,65 @@ test("expands from the marker's pointed corner and contracts back into it", asyn
   await expect(panel).toBeFocused();
 });
 
+test("explicit expansion corners stay fixed as the viewport narrows and widens", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 2200 });
+  const trigger = page.getByRole("button", {
+    name: "Expanding pinote",
+    exact: true,
+  });
+  for (const corner of [
+    "top-left",
+    "top-right",
+    "bottom-left",
+    "bottom-right",
+  ]) {
+    await page.getByLabel("Tip orientation").selectOption(corner);
+    await expect(trigger).toHaveAttribute("data-orientation", corner);
+    await trigger.click();
+    const panel = page.getByRole("dialog", {
+      name: "Expanding pinote",
+      exact: true,
+    });
+    await expect(panel.locator("bdi")).toHaveCSS("opacity", "1");
+    for (const width of [320, 600, 320]) {
+      await page.setViewportSize({ width, height: 2200 });
+      await expect(trigger).toHaveAttribute("data-orientation", corner);
+      await expect(panel).toHaveCSS(`border-${corner}-radius`, "0px");
+      await expect
+        .poll(async () => {
+          const marker = (await trigger.boundingBox())!;
+          const card = (await panel.boundingBox())!;
+          return Math.max(
+            Math.abs(
+              card.x +
+                (corner.endsWith("right") ? card.width : 0) -
+                marker.x -
+                (corner.endsWith("right") ? marker.width : 0),
+            ),
+            Math.abs(
+              card.y +
+                (corner.startsWith("bottom") ? card.height : 0) -
+                marker.y -
+                (corner.startsWith("bottom") ? marker.height : 0),
+            ),
+          );
+        })
+        .toBeLessThan(0.6);
+      const card = (await panel.boundingBox())!;
+      expect(card.x).toBeGreaterThanOrEqual(11);
+      expect(card.x + card.width).toBeLessThanOrEqual(width - 11);
+      expect(
+        await panel.evaluate((node) => node.scrollWidth - node.clientWidth),
+      ).toBeLessThanOrEqual(1);
+    }
+    await page.mouse.move(0, 0);
+    await page.keyboard.press("Escape");
+    await expect(page.locator('[data-slot="pinote-content"]')).toHaveCount(0);
+  }
+});
+
 test("expanded keyboard focus remains visible and can leave the message", async ({
   page,
 }) => {
@@ -1092,8 +1151,13 @@ test("reuses the default trigger with app content, headers, focus targets and mo
       .getBoundingClientRect();
     return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
   });
-  expect(center.x).toBeCloseTo(anchor.x + anchor.width / 2, 0);
-  expect(center.y).toBeCloseTo(anchor.y + anchor.height / 2, 0);
+  // Layout offsets round to integer CSS pixels; allow half a pixel at the center.
+  expect(Math.abs(center.x - anchor.x - anchor.width / 2)).toBeLessThanOrEqual(
+    0.5,
+  );
+  expect(Math.abs(center.y - anchor.y - anchor.height / 2)).toBeLessThanOrEqual(
+    0.5,
+  );
   await expect(exiting).toHaveCount(0);
 });
 
