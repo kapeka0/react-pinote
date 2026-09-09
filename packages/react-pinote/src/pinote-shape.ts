@@ -16,17 +16,13 @@ export function pinoteRadius(corner: string, radius: string) {
     .join(" ");
 }
 
-/** A custom trigger can be rectangular; default markers use the CSS size token. */
+/** Collapse at the marker's measured position, including viewport adjustments. */
 export function pinoteClip(
-  corner: string,
   radius: string,
-  size?: { width: number; height: number },
+  center: PinotePosition,
+  size: { width: number; height: number },
 ) {
-  const insets = ["bottom", "left", "top", "right"].map((edge) => {
-    const dimension = size
-      ? `${edge === "top" || edge === "bottom" ? size.height : size.width}px`
-      : "var(--pinote-size,25px)";
-    return corner.includes(edge) ? `calc(100% - ${dimension})` : "0";
-  });
-  return `inset(${insets.join(" ")} round ${radius})`;
+  const left = center.x - size.width / 2;
+  const top = center.y - size.height / 2;
+  return `inset(${top}px calc(100% - ${left + size.width}px) calc(100% - ${top + size.height}px) ${left}px round ${radius})`;
 }
