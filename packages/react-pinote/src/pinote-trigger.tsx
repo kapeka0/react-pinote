@@ -1,5 +1,4 @@
 import type { ComponentPropsWithoutRef, ReactNode, Ref } from "react";
-import { PinoteIcon } from "./pinote-icon";
 import type { PinoteAuthor, PinoteAuthorPlacement } from "./types";
 
 type PinoteTriggerProps = Omit<
@@ -50,7 +49,7 @@ export function PinoteTrigger({
         {icon}
       </span>
     ) : (
-      (!beside && avatar) || <PinoteIcon />
+      !beside && avatar
     );
   return (
     <button {...props} ref={triggerRef}>

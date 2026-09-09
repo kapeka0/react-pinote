@@ -35,7 +35,7 @@ describe("PinoteHighlight", () => {
     );
     expect(
       screen.getByRole("button", { name: "Open pinote" }),
-    ).toBeInTheDocument();
+    ).toBeEmptyDOMElement();
   });
 
   it("supports the same opening animation presets", async () => {

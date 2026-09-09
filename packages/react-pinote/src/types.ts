@@ -51,7 +51,7 @@ export type PinoteAppearance = {
   authorPlacement?: PinoteAuthorPlacement;
   /** Message body. May contain interactive React content. */
   content: ReactNode;
-  /** Custom React icon or SVG, taking precedence over an author's avatar. */
+  /** Optional trigger icon, replacing the inside avatar. Omit for an avatar or empty marker; null hides both. */
   icon?: ReactNode;
   /** Stable identifier, unique within this layer. */
   id: string;

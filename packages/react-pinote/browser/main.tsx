@@ -287,6 +287,7 @@ function Fixture() {
         <Pinote
           id="attached"
           aria-label="Attached pinote"
+          icon={logo}
           orientation={orientation}
           position={
             attachment === "coordinates"

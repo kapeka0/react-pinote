@@ -360,18 +360,18 @@ describe("Pinote", () => {
     bounds.mockRestore();
   });
 
-  it("uses a dependency-free note glyph for an anonymous trigger", () => {
+  it("renders an empty anonymous trigger when no icon is supplied", () => {
     render(
       <PinoteLayer>
         <Pinote
-          id="default-glyph"
-          position={{ x: 50, y: 50 }}
-          content="Default icon content"
+          id="note"
+          position={{ x: 25, y: 40 }}
+          content="Could this sentence be shorter?"
         />
       </PinoteLayer>,
     );
 
     const trigger = screen.getByRole("button", { name: "Open pinote" });
-    expect(trigger.querySelector("svg")).toBeInTheDocument();
+    expect(trigger).toBeEmptyDOMElement();
   });
 });

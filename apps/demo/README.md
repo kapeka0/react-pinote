@@ -2,6 +2,8 @@
 
 The Astro demo uses the local `react-pinote` workspace package. Each deployment includes the library from the same commit, which can differ from the latest npm release.
 
+The demo uses the default empty markers without passing `icon`. Author photos and conversation avatars are supplied explicitly.
+
 The installation button copies `npm i react-pinote` and shows a checkmark for two seconds after a successful copy. If clipboard access fails, the command stays selectable and a message explains how to copy it manually. Reduced motion uses a crossfade for the icons.
 
 ## Open Graph image

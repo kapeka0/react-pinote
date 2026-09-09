@@ -73,7 +73,7 @@ These props also apply to `PinoteHighlight`.
 | `preview`            | `boolean`                                     | `true`                    | Allows hover and keyboard-focus previews.                                           |
 | `author`             | `{ name: string; avatarUrl?: string }`        | None                      | Default author name and avatar.                                                     |
 | `authorPlacement`    | `"inside" \| "beside"`                        | `"inside"`                | Places the author avatar in or beside the trigger.                                  |
-| `icon`               | `ReactNode`                                   | Avatar or note glyph      | Replaces the trigger visual. Use `null` for an empty marker.                        |
+| `icon`               | `ReactNode`                                   | Avatar or empty marker    | Optional trigger icon. Overrides the avatar. Use `null` to leave the marker empty.  |
 | `header`             | `ReactNode`                                   | Author name               | Replaces the panel heading. Use `null` to omit it.                                  |
 | `leading`            | `ReactNode`                                   | Author avatar             | Replaces the panel's leading visual. Use `null` to omit it.                         |
 | `triggerAside`       | `ReactNode`                                   | Side avatar               | Custom decoration beside the trigger. Works without an author.                      |

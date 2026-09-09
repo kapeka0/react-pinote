@@ -4,6 +4,8 @@
 
 Styles load with `react-pinote`. Set CSS variables on a pinote, a layer or an ancestor. They follow content into its portal.
 
+Your build tool must support CSS imports.
+
 ```tsx
 <Pinote
   id="custom"

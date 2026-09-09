@@ -87,7 +87,6 @@ export default function Demo({
             id="wordmark"
             aria-label="Open pinote about highlighted text"
             variant="expand"
-            icon={null}
             content="A thought attached to a word."
           >
             pinote
@@ -123,7 +122,6 @@ export default function Demo({
           animation="fade"
           color="#1d4ed8"
           orientation="bottom-right"
-          icon={null}
           draggable
           position={position}
           onPositionChange={setPosition}
@@ -147,7 +145,6 @@ export default function Demo({
         animation="slide"
         color="#b91c1c"
         orientation="top-right"
-        icon={null}
         content="A one-time pinote. Click outside or move focus away, and I'll disappear."
       />
       <Pinote
@@ -155,7 +152,6 @@ export default function Demo({
         className="photo-pinote"
         aria-label="Open custom style pinote"
         animation="slide"
-        icon={null}
         draggable
         defaultPosition={{ x: 76, y: 66 }}
         style={{
@@ -187,7 +183,6 @@ export default function Demo({
         draggable
         defaultPosition={{ x: 52, y: 72 }}
         orientation="top-left"
-        icon={null}
         content={<ReadOnlyConversation comments={comments} />}
       />
     </PinoteLayer>

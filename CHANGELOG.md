@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.0
+
+- Remove the built-in trigger icon. Markers are empty by default unless an author photo is supplied. Pass `icon` to add a custom visual.
+- Simplify installation guidance and document the new icon default.
+
 ## 0.1.3
 
 - Give all panels a gradual 220 ms exit by default. The existing `--pinote-collapse-duration` variable now controls popover closing as well as expansion.

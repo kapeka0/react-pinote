@@ -12,7 +12,7 @@ Compatible with React 18, React 19 and [shadcn/ui](docs/styling.md#shadcn-and-da
 npm i react-pinote
 ```
 
-Use matching React and React DOM versions with a CSS-aware bundler such as Vite or Astro. Styles load with the JavaScript import.
+Styles are included. No separate CSS import is needed.
 
 Try the [live demo](https://react-pinote.vercel.app). To build or install the package from source, see [development](docs/development.md#local-package).
 
@@ -36,6 +36,8 @@ export function Example() {
 
 Coordinates are percentages of the layer, measured from its top-left corner. Give the layer a nonzero size and keep its padding at zero. Each layer keeps one pinote open, and every pinote needs a unique `id` within that layer.
 
+Markers have no icon by default. Pass `icon={<YourIcon />}` to add one. A supplied author photo appears in the marker unless an icon replaces it.
+
 Place the following examples inside a `PinoteLayer`.
 
 ### Attach to text
@@ -48,7 +50,6 @@ import { PinoteHighlight } from "react-pinote";
   <PinoteHighlight
     id="word"
     variant="expand"
-    icon={null}
     content="A little context, right here."
   >
     word

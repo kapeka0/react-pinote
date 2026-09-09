@@ -447,13 +447,7 @@ test("the app-owned read-only conversation keeps extra avatars mostly hidden", a
   await expect(page.locator('[data-slot="pinote-trigger"]')).toHaveCount(6);
   await expect(page.getByRole("toolbar")).toHaveCount(0);
   await expect(page.locator('[data-slot="pinote-trigger"] svg')).toHaveCount(0);
-  await expect(page.locator('[data-slot="pinote-icon"]')).toHaveText([
-    "",
-    "",
-    "",
-    "",
-    "",
-  ]);
+  await expect(page.locator('[data-slot="pinote-icon"]')).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: "Open anonymous pinote", exact: true }),
   ).toHaveAttribute("data-orientation", "bottom-right");
