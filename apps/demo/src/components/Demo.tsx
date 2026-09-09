@@ -14,10 +14,50 @@ import {
 } from "./ReadOnlyConversation";
 
 const POSITION_KEY = "react-pinote:demo-position:v1";
+const DEFAULT_POSITIONS = {
+  quiet: { x: 25, y: 30 },
+  kapeka: { x: 61, y: 32 },
+  spark: { x: 29, y: 70 },
+  custom: { x: 76, y: 66 },
+  "side-author": { x: 52, y: 72 },
+};
+type MarkerId = keyof typeof DEFAULT_POSITIONS;
 
-function savePosition(position: PinotePosition) {
+function positionKey(id: MarkerId) {
+  // Preserve the blue marker's existing saved position.
+  return id === "quiet" ? POSITION_KEY : `${POSITION_KEY}:${id}`;
+}
+
+function loadPosition(id: MarkerId): PinotePosition {
   try {
-    localStorage.setItem(POSITION_KEY, JSON.stringify(position));
+    const saved: unknown = JSON.parse(
+      localStorage.getItem(positionKey(id)) ?? "null",
+    );
+    if (
+      saved &&
+      typeof saved === "object" &&
+      "x" in saved &&
+      "y" in saved &&
+      typeof saved.x === "number" &&
+      typeof saved.y === "number" &&
+      Number.isFinite(saved.x) &&
+      Number.isFinite(saved.y) &&
+      saved.x >= 0 &&
+      saved.x <= 100 &&
+      saved.y >= 0 &&
+      saved.y <= 100
+    ) {
+      return { x: saved.x, y: saved.y };
+    }
+  } catch {
+    // Invalid or unavailable storage only resets this marker.
+  }
+  return DEFAULT_POSITIONS[id];
+}
+
+function savePosition(id: MarkerId, position: PinotePosition) {
+  try {
+    localStorage.setItem(positionKey(id), JSON.stringify(position));
   } catch {
     // Moving still works when storage is blocked or full.
   }
@@ -53,35 +93,17 @@ export default function Demo({
       text: "I found the next last bug.",
     },
   ];
-  // The server cannot read browser storage. Mount this marker only after its
-  // saved coordinates are known, so the default spot is never painted first.
-  const [position, setPosition] = useState<PinotePosition | null>(null);
+  // Mount markers after reading storage, so their default spots never flash.
+  const [positions, setPositions] = useState<Record<
+    MarkerId,
+    PinotePosition
+  > | null>(null);
   useEffect(() => {
-    let initialPosition = { x: 25, y: 30 };
-    try {
-      const saved: unknown = JSON.parse(
-        localStorage.getItem(POSITION_KEY) ?? "null",
-      );
-      if (
-        saved &&
-        typeof saved === "object" &&
-        "x" in saved &&
-        "y" in saved &&
-        typeof saved.x === "number" &&
-        typeof saved.y === "number" &&
-        Number.isFinite(saved.x) &&
-        Number.isFinite(saved.y) &&
-        saved.x >= 0 &&
-        saved.x <= 100 &&
-        saved.y >= 0 &&
-        saved.y <= 100
-      ) {
-        initialPosition = { x: saved.x, y: saved.y };
-      }
-    } catch {
-      // Invalid or unavailable storage falls back to the initial coordinates.
+    const initialPositions = { ...DEFAULT_POSITIONS };
+    for (const id of Object.keys(initialPositions) as MarkerId[]) {
+      initialPositions[id] = loadPosition(id);
     }
-    setPosition(initialPosition);
+    setPositions(initialPositions);
   }, []);
   return (
     <PinoteProvider>
@@ -121,75 +143,80 @@ export default function Demo({
             GitHub
           </a>
         </footer>
-        {position && (
-          <Pinote
-            id="quiet"
-            aria-label="Open anonymous pinote"
-            animation="fade"
-            color="#1d4ed8"
-            orientation="bottom-right"
-            draggable
-            position={position}
-            onPositionChange={setPosition}
-            onDragEnd={savePosition}
-            content="No name needed. Drag me around. I'll remember this spot."
-          />
+        {positions && (
+          <>
+            <Pinote
+              id="quiet"
+              aria-label="Open anonymous pinote"
+              animation="fade"
+              color="#1d4ed8"
+              orientation="bottom-right"
+              draggable
+              defaultPosition={positions.quiet}
+              onDragEnd={(position) => savePosition("quiet", position)}
+              content="No name needed. Drag me around. I'll remember this spot."
+            />
+            <Pinote
+              id="kapeka"
+              variant="expand"
+              author={{ name: "Kapeka", avatarUrl: kapekaAvatarUrl }}
+              draggable
+              defaultPosition={positions.kapeka}
+              onDragEnd={(position) => savePosition("kapeka", position)}
+              content="Minimalist? We just ran out of tokens."
+            />
+            <OneTimePinote
+              id="spark"
+              aria-label="Open one-time pinote"
+              draggable
+              defaultPosition={positions.spark}
+              onDragEnd={(position) => savePosition("spark", position)}
+              animation="slide"
+              color="#b91c1c"
+              orientation="top-right"
+              content="A one-time pinote. Click outside or move focus away, and I'll disappear."
+            />
+            <Pinote
+              id="custom"
+              className="photo-pinote"
+              aria-label="Open custom style pinote"
+              animation="slide"
+              draggable
+              defaultPosition={positions.custom}
+              onDragEnd={(position) => savePosition("custom", position)}
+              render={<button type="button" className="photo-trigger" />}
+              style={{
+                "--pinote-background": "#f8e5a4",
+                "--pinote-foreground": "#45350e",
+                "--pinote-radius": "9px",
+              }}
+              content={
+                <figure className="demo-photo">
+                  <img
+                    src={photoUrl}
+                    alt="Sunlight casting window shadows on a golden curtain."
+                    width="248"
+                    height="186"
+                    decoding="async"
+                    draggable={false}
+                  />
+                  <figcaption>Afternoon light.</figcaption>
+                </figure>
+              }
+            />
+            <Pinote
+              id="side-author"
+              aria-label="Open pinote with a side author"
+              author={comments[0]!.author}
+              render={<ConversationTrigger comments={comments} />}
+              draggable
+              defaultPosition={positions["side-author"]}
+              onDragEnd={(position) => savePosition("side-author", position)}
+              orientation="top-left"
+              content={<ReadOnlyConversation comments={comments} />}
+            />
+          </>
         )}
-        <Pinote
-          id="kapeka"
-          variant="expand"
-          author={{ name: "Kapeka", avatarUrl: kapekaAvatarUrl }}
-          draggable
-          defaultPosition={{ x: 61, y: 32 }}
-          content="Minimalist? We just ran out of tokens."
-        />
-        <OneTimePinote
-          id="spark"
-          aria-label="Open one-time pinote"
-          draggable
-          defaultPosition={{ x: 29, y: 70 }}
-          animation="slide"
-          color="#b91c1c"
-          orientation="top-right"
-          content="A one-time pinote. Click outside or move focus away, and I'll disappear."
-        />
-        <Pinote
-          id="custom"
-          className="photo-pinote"
-          aria-label="Open custom style pinote"
-          animation="slide"
-          draggable
-          defaultPosition={{ x: 76, y: 66 }}
-          render={<button type="button" className="photo-trigger" />}
-          style={{
-            "--pinote-background": "#f8e5a4",
-            "--pinote-foreground": "#45350e",
-            "--pinote-radius": "9px",
-          }}
-          content={
-            <figure className="demo-photo">
-              <img
-                src={photoUrl}
-                alt="Sunlight casting window shadows on a golden curtain."
-                width="248"
-                height="186"
-                decoding="async"
-                draggable={false}
-              />
-              <figcaption>Afternoon light.</figcaption>
-            </figure>
-          }
-        />
-        <Pinote
-          id="side-author"
-          aria-label="Open pinote with a side author"
-          author={comments[0]!.author}
-          render={<ConversationTrigger comments={comments} />}
-          draggable
-          defaultPosition={{ x: 52, y: 72 }}
-          orientation="top-left"
-          content={<ReadOnlyConversation comments={comments} />}
-        />
       </PinoteLayer>
     </PinoteProvider>
   );

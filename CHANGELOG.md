@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Remember the positions of all draggable landing markers across reloads.
 - Clarify the limits of saved coordinates and the app's responsibility for persistence.
 
 ## 0.4.1

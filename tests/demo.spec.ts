@@ -3,6 +3,24 @@ import { expect, test } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
 import { clippedBounds } from "./expansion-geometry";
 
+const persistedMarkers = [
+  ["Open anonymous pinote", "react-pinote:demo-position:v1"],
+  ["Open pinote from Kapeka", "react-pinote:demo-position:v1:kapeka"],
+  ["Open one-time pinote", "react-pinote:demo-position:v1:spark"],
+  ["Open custom style pinote", "react-pinote:demo-position:v1:custom"],
+  [
+    "Open pinote with a side author",
+    "react-pinote:demo-position:v1:side-author",
+  ],
+] as const;
+
+function markerPosition(trigger: Locator) {
+  return trigger.evaluate((node) => ({
+    left: node.parentElement!.parentElement!.style.left,
+    top: node.parentElement!.parentElement!.style.top,
+  }));
+}
+
 async function dragBy(page: Page, trigger: Locator, x: number, y: number) {
   await expect(trigger).toHaveAttribute("data-draggable", "");
   await trigger.evaluate((node) =>
@@ -404,12 +422,17 @@ for (const width of [320, 412, 600, 900]) {
   });
 }
 
-test("never paints the saved marker at its default position while hydration is delayed", async ({
+test("never paints saved markers at their default positions while hydration is delayed", async ({
   page,
 }) => {
-  await page.addInitScript(() => {
-    localStorage.setItem("react-pinote:demo-position:v1", '{"x":75,"y":65}');
-  });
+  await page.addInitScript((markers) => {
+    markers.forEach(([, key], index) => {
+      localStorage.setItem(
+        key,
+        JSON.stringify({ x: 10 + index * 15, y: 15 + index * 8 }),
+      );
+    });
+  }, persistedMarkers);
   let resumeHydration!: () => void;
   const hydration = new Promise<void>((resolve) => {
     resumeHydration = resolve;
@@ -420,59 +443,59 @@ test("never paints the saved marker at its default position while hydration is d
   });
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  const trigger = page.getByRole("button", {
-    name: "Open anonymous pinote",
-    exact: true,
-  });
+  const triggers = page.locator('[data-slot="pinote-trigger"][data-draggable]');
   try {
     await page.goto("/", { waitUntil: "commit" });
     await expect(page.locator("h1")).toBeVisible();
-    await expect(trigger).toBeHidden();
+    await expect(triggers).toHaveCount(0);
   } finally {
     resumeHydration();
   }
-  await expect(trigger).toBeVisible();
-  expect(
-    await trigger.evaluate((node) => ({
-      left: node.parentElement!.parentElement!.style.left,
-      top: node.parentElement!.parentElement!.style.top,
-    })),
-  ).toEqual({ left: "75%", top: "65%" });
+  await expect(triggers).toHaveCount(5);
+  for (const [index, [name]] of persistedMarkers.entries()) {
+    const trigger = page.getByRole("button", { name, exact: true });
+    await expect(trigger).toBeVisible();
+    expect(await markerPosition(trigger)).toEqual({
+      left: `${10 + index * 15}%`,
+      top: `${15 + index * 8}%`,
+    });
+  }
   expect(errors).toEqual([]);
 });
 
-test("the draggable demo remembers a committed position across reloads", async ({
+test("all draggable markers remember their positions after a responsive reload", async ({
   page,
 }) => {
   await page.goto("/");
-  const trigger = page.getByRole("button", {
-    name: "Open anonymous pinote",
-    exact: true,
-  });
-  await expect(trigger).toHaveAttribute("data-entrance", "pop");
-  await dragBy(page, trigger, 40, 30);
-  const saved = await page.evaluate(
-    () =>
-      JSON.parse(localStorage.getItem("react-pinote:demo-position:v1")!) as {
-        x: number;
-        y: number;
-      },
-  );
-  expect(saved.x).toBeGreaterThan(25);
-  expect(saved.y).toBeGreaterThan(30);
+  const savedPositions = [];
+  for (const [name, key] of persistedMarkers) {
+    const trigger = page.getByRole("button", { name, exact: true });
+    await expect(trigger).toHaveAttribute("data-entrance", "pop");
+    const before = await markerPosition(trigger);
+    await dragBy(page, trigger, -35, 22);
+    const saved = await page.evaluate(
+      (key) =>
+        JSON.parse(localStorage.getItem(key)!) as { x: number; y: number },
+      key,
+    );
+    const position = await markerPosition(trigger);
+    // CSSOM rounds percentage strings; storage keeps the full coordinate.
+    expect(parseFloat(position.left)).toBeCloseTo(saved.x, 3);
+    expect(parseFloat(position.top)).toBeCloseTo(saved.y, 3);
+    expect(position).not.toEqual(before);
+    savedPositions.push({ name, position });
+  }
+  const red = page.getByRole("button", { name: "Open one-time pinote" });
+  await red.click();
+  await page.locator(".description").click();
+  await expect(red).toHaveCount(0);
+  await page.setViewportSize({ width: 320, height: 640 });
   await page.reload();
-  await expect
-    .poll(async () => {
-      const marker = (await trigger.boundingBox())!;
-      const layer = (await page
-        .locator('[data-slot="pinote-layer"]')
-        .boundingBox())!;
-      return Math.abs(
-        (marker.x + marker.width / 2 - layer.x) / layer.width - saved.x / 100,
-      );
-    })
-    .toBeLessThan(0.001);
-  await expect(trigger).toHaveCSS("scale", "none", { timeout: 2000 });
+  for (const { name, position } of savedPositions) {
+    const trigger = page.getByRole("button", { name, exact: true });
+    await expect(trigger).toBeVisible();
+    expect(await markerPosition(trigger)).toEqual(position);
+  }
 });
 
 test("invalid or unavailable browser storage does not break the demo", async ({
@@ -484,11 +507,24 @@ test("invalid or unavailable browser storage does not break the demo", async ({
         "react-pinote:demo-position:v1",
         '{"x":"wrong","y":999}',
       );
+      localStorage.setItem("react-pinote:demo-position:v1:kapeka", "invalid");
+      localStorage.setItem("react-pinote:demo-position:v1:spark", "[]");
+      localStorage.setItem(
+        "react-pinote:demo-position:v1:custom",
+        '{"x":80,"y":65}',
+      );
+      localStorage.setItem(
+        "react-pinote:demo-position:v1:side-author",
+        '{"x":-1,"y":30}',
+      );
     } catch {
       /* Storage can be unavailable on reload. */
     }
   });
   await page.goto("/");
+  const photo = page.getByRole("button", { name: "Open custom style pinote" });
+  await expect(photo).toBeVisible();
+  expect(await markerPosition(photo)).toEqual({ left: "80%", top: "65%" });
   const trigger = page.getByRole("button", {
     name: "Open anonymous pinote",
     exact: true,
@@ -514,7 +550,13 @@ test("invalid or unavailable browser storage does not break the demo", async ({
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.reload();
-  await dragBy(page, trigger, 40, 0);
+  for (const [name] of persistedMarkers) {
+    const marker = page.getByRole("button", { name, exact: true });
+    await expect(marker).toBeVisible();
+    const before = await markerPosition(marker);
+    await dragBy(page, marker, -35, 22);
+    expect(await markerPosition(marker)).not.toEqual(before);
+  }
   await trigger.click();
   await expect(page.getByRole("dialog")).toBeVisible();
   expect(errors).toEqual([]);

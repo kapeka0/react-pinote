@@ -6,6 +6,14 @@ The React island wraps the landing in one `PinoteProvider`. `PinoteLayer` suppli
 
 The installation button copies `npm i react-pinote` and shows a checkmark for two seconds after a successful copy. If clipboard access fails, the command stays selectable and a message explains how to copy it manually. Reduced motion uses a crossfade for the icons.
 
+## Saved positions
+
+All five draggable markers save their layer percentages to `localStorage` after a completed drag. They mount after storage is read, then use `defaultPosition` so dragging stays local to each marker. Invalid or unavailable storage falls back to that marker's initial position. The text attachment stays fixed.
+
+The blue marker keeps its existing `react-pinote:demo-position:v1` key. The others append their Pinote ID, such as `react-pinote:demo-position:v1:kapeka`. Bump the shared key version in `Demo.tsx` when changing the landing layout to start from fresh positions. Resizing keeps the saved percentages relative to the layer.
+
+The red marker's disappearance lasts only for the current visit. Reloading brings it back at its last saved position. All storage and dismissal behavior belongs to the demo; the library API is unchanged.
+
 ## Open Graph image
 
 From the repository root, run `pnpm og` after changing the landing. On a fresh checkout, install the capture browser once with `pnpm exec playwright install chromium`.
