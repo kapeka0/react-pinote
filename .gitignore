@@ -4,8 +4,10 @@ dist/
 .vercel/
 coverage/
 *.tsbuildinfo
+plans
 playwright-report/
 test-results/
 *.tgz
 packages/react-pinote/README.md
 packages/react-pinote/LICENSE
+packages/react-pinote/docs/

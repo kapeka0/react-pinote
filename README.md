@@ -1,209 +1,109 @@
 # react-pinote
 
-Small React annotations attached to coordinates, components, or underlined text.
+React annotations attached to a position, a component or a word. Hover to preview. Click to keep the content open.
 
-Built and tested primarily with React 19; React 18 is also supported. TypeScript, ESM, and no runtime dependencies beyond React and React DOM. The Astro landing is a demo. Documentation lives here.
+Supports React 18 and 19. Includes TypeScript types and CSS. React and React DOM are the only runtime dependencies.
 
-This package has not been published yet. Run the demo or pack it locally to try it.
+[API reference](docs/api.md) · [Styling](docs/styling.md) · [Development](docs/development.md)
 
-## Coordinates
+## Install from this repository
+
+From the repository root:
+
+```sh
+pnpm install --frozen-lockfile
+pnpm --filter react-pinote pack
+```
+
+Install the generated package in your React app:
+
+```sh
+pnpm add /path/to/react-pinote-0.1.0.tgz
+```
+
+Use matching React and React DOM versions with a CSS-aware bundler such as Vite or Astro. Styles load with the JavaScript import.
+
+## Usage
 
 ```tsx
 import { Pinote, PinoteLayer } from "react-pinote";
 
-export function Preview() {
+export function Example() {
   return (
     <PinoteLayer style={{ height: 320 }}>
       <Pinote
-        id="intro"
+        id="note"
         position={{ x: 25, y: 40 }}
-        content="A thought, right here."
+        content="Could this sentence be shorter?"
       />
     </PinoteLayer>
   );
 }
 ```
 
-Styles load automatically with the JavaScript import. No stylesheet import or global provider is required. Each `PinoteLayer` manages its own open pinote. IDs must be unique within a layer.
+Coordinates are percentages of the layer, measured from its top-left corner. Give the layer a nonzero size and keep its padding at zero. Each layer keeps one pinote open, and every pinote needs a unique `id` within that layer.
 
-`x` and `y` are percentages from the top-left of the layer. The activator's center sits at that point. Use finite values from 0 to 100. Give the layer a nonzero size and keep its padding at zero; put decorative padding inside it instead. Activators on an edge extend outside the box, so allow visible overflow.
+Place the following examples inside a `PinoteLayer`.
 
-## Attach to a component
-
-```tsx
-<PinoteLayer>
-  <Pinote id="save" position="top-left" content="Save a draft first.">
-    <button type="button">Save</button>
-  </Pinote>
-</PinoteLayer>
-```
-
-With children, `Pinote` creates an inline-block wrapper and defaults to `top-right`. The activator is a sibling of the wrapped component, so buttons are not nested. Use `style={{ display: "block" }}` for a full-width wrapper.
-
-| `position`                              | Activator center              |
-| --------------------------------------- | ----------------------------- |
-| `top-left`, `top`, `top-right`          | Top edge                      |
-| `left`, `center`, `right`               | Middle row                    |
-| `bottom-left`, `bottom`, `bottom-right` | Bottom edge                   |
-| `{ x: 25, y: 75 }`                      | Percentages from the top-left |
-
-These values work on standalone pinotes, component attachments, and highlights. An attachment uses its wrapper's area; a standalone pinote uses its layer. Positions are physical, including in right-to-left layouts.
-
-## Underline text
+### Attach to text
 
 ```tsx
-import { PinoteHighlight, PinoteLayer } from "react-pinote";
+import { PinoteHighlight } from "react-pinote";
 
-<PinoteLayer>
-  <p>
-    Review the{" "}
-    <PinoteHighlight id="wording" content="Can we simplify this?">
-      highlighted wording
-    </PinoteHighlight>
-    .
-  </p>
-</PinoteLayer>;
+<p>
+  A thought attached to a{" "}
+  <PinoteHighlight
+    id="word"
+    variant="expand"
+    icon={null}
+    content="A little context, right here."
+  >
+    word
+  </PinoteHighlight>
+  .
+</p>;
 ```
 
-The activator defaults to the text's top-right corner. Override it with `position="bottom-right"` or `{ x, y }`. The inline-block highlight can wrap its own text across multiple lines; it moves as one box within the surrounding sentence. Use text or non-interactive inline markup as its children. Interactive content belongs in `content`.
+`variant="expand"` turns the marker into the content panel. The default `popover` variant opens a separate panel. Both work with or without an author.
 
-## From pointer coordinates
-
-`getPinotePosition(event, container)` converts viewport pointer coordinates to percentages of the container's inner box, accounting for borders and simple scaling. It clamps outside values to 0–100. Empty containers and non-finite pointer coordinates throw `RangeError`.
+### Attach to a component
 
 ```tsx
-import { useState } from "react";
-import { getPinotePosition, Pinote, PinoteLayer } from "react-pinote";
-import type { PinotePosition } from "react-pinote";
-
-function Surface() {
-  const [position, setPosition] = useState<PinotePosition>({ x: 50, y: 50 });
-  return (
-    <div
-      onPointerDown={(event) => {
-        if (event.target === event.currentTarget) {
-          setPosition(getPinotePosition(event, event.currentTarget));
-        }
-      }}
-    >
-      <PinoteLayer style={{ height: 320, pointerEvents: "none" }}>
-        <Pinote
-          id="point"
-          position={position}
-          style={{ pointerEvents: "auto" }}
-          content="Placed from the pointer."
-        />
-      </PinoteLayer>
-    </div>
-  );
-}
+<Pinote id="save" position="top-left" content="Save a draft first.">
+  <button type="button">Save</button>
+</Pinote>
 ```
 
-Use a container with the same dimensions as the layer. Rotated/skewed coordinate surfaces are not supported. Dragging, text selection, storage, and comment editing are outside this library's scope.
+The position is relative to the wrapped component. Component and text attachments do not support dragging.
 
-## Author and icon
-
-Both variants accept `content: ReactNode`, optional `author: { name: string; avatarUrl?: string }`, and optional `icon: ReactNode`.
-
-Omit `author` to show no user information. The activator uses an available avatar, otherwise the built-in note SVG. `icon` takes precedence over the avatar. Give custom icon-only pinotes a descriptive `aria-label`.
+### Enable dragging
 
 ```tsx
 <Pinote
-  id="review"
-  position="top-right"
-  author={{ name: "Maya", avatarUrl: "/maya.svg" }}
-  content={<p>Could this sentence be shorter?</p>}
+  id="movable"
+  draggable
+  defaultPosition="center"
+  content="Drag me around."
 />
 ```
 
-## Appearance and dark mode
+Use `defaultPosition` for internal position state. To control it from your app, pass `position` and `onPositionChange`. Save completed moves with `onDragEnd`.
 
-The default activator is 24 px, rounded with a pointed bottom-left corner. Activator and message share the same background and shadow, with no border. Touch devices get an invisible 10 px hit-area extension on each side. Keep nearby interactive targets separated.
+## Use your own content
 
-```tsx
-<Pinote
-  id="custom"
-  position={{ x: 70, y: 30 }}
-  style={{
-    "--pinote-background": "#f8e5a4",
-    "--pinote-foreground": "#45350e",
-    "--pinote-size": "28px",
-  }}
-  content="The same background on both surfaces."
-/>
-```
+`content`, `header`, `leading`, `icon` and `triggerAside` accept React nodes. Use them for your app's controls, labels or avatars. The optional `author` prop supplies a name and photo without a custom layout.
 
-| CSS variable              | Default                                                  |
-| ------------------------- | -------------------------------------------------------- |
-| `--pinote-background`     | shadcn `--popover`, otherwise a light/dark surface       |
-| `--pinote-foreground`     | shadcn `--popover-foreground`, otherwise light/dark text |
-| `--pinote-size`           | `24px`                                                   |
-| `--pinote-trigger-radius` | `50% 50% 50% 0`                                          |
-| `--pinote-width`          | `280px`, constrained by the viewport                     |
-| `--pinote-radius`         | shadcn `--radius`, otherwise `12px`                      |
-| `--pinote-accent`         | Current text color for the underline                     |
-| `--pinote-duration`       | `140ms`                                                  |
+`usePinote()` gives content and visual slots access to `isPreview`, `open()` and `close()`. Your app owns comment data, editing permissions and storage. See [composition and focus](docs/api.md#composition-and-focus).
 
-System color preference works automatically. A `.dark` or `.light` ancestor selects a theme explicitly. Modern shadcn tokens must contain complete CSS color values, such as `oklch(...)`, rather than bare HSL channels. Local tokens follow the message into its portal and update when ancestor classes/styles change.
+## Interaction
 
-`className` and `style` apply to the annotation wrapper and the message. Use `--pinote-*` variables for shared appearance and `data-slot` selectors for targeted changes. Stable slots: `pinote-layer`, `pinote`, `pinote-attachment`, `pinote-highlight`, `pinote-highlight-text`, `pinote-trigger`, `pinote-content`, `pinote-author`, `pinote-avatar`, `pinote-icon`, and `pinote-body`. Wrappers expose `data-state="open|closed"`; messages expose `data-side` and `data-animation`.
+- Hover or keyboard focus opens a preview. Set `preview={false}` for explicit activation only.
+- Click, tap, Enter or Space keeps the content open. An outside click or Escape closes it.
+- Explicit opening focuses the first available control, or the panel itself. Use `initialFocusRef` to choose another target. Hover never moves focus.
+- Tab moves through the content without trapping focus. Escape restores focus to the trigger when focus was inside.
 
-## State and interaction
-
-Hover or keyboard focus opens a preview. Moving into the message keeps it open. Clicking or tapping the activator keeps it open until another click, an outside interaction, Escape, or another pinote opens. Only one pinote is open per layer. A persistent pinote stays open while hovering others.
-
-Messages are non-modal dialogs. Tab from the activator reaches interactive content. Escape closes the message and restores focus to the activator when focus was inside. Tab can leave the message without a focus trap.
-
-```tsx
-const [openId, setOpenId] = useState<string | null>(null);
-
-<PinoteLayer openId={openId} onOpenChange={setOpenId} animation="fade">
-  {/* Pinote and PinoteHighlight children */}
-</PinoteLayer>;
-```
-
-Omit `openId` for uncontrolled state. `defaultOpenId` opens an initial pinote after hydration. In controlled mode, honor `onOpenChange` to allow dismissal, or deliberately keep ownership of the visible ID. Externally opened IDs are persistent.
-
-The layer and individual pinotes accept `animation="fade" | "scale" | "slide" | "none"`. The default is `scale`; a pinote overrides its layer. Reduced-motion preferences disable built-in animations.
-
-## Portals and compatibility
-
-Messages use a body portal by default and flip/shift inside the viewport. Set `portalContainer` on the layer for a custom DOM container, or `portal={false}` to render alongside the annotation. Custom containers should not sit under transformed, filtered, or paint-containing ancestors: these change fixed-position coordinates. Inline messages can be clipped by ancestor overflow.
-
-Server and initial client output match, including with `defaultOpenId`. Messages mount after hydration, without document/window access during server rendering. The ESM entry includes `"use client"`. Use a CSS-aware bundler, such as Vite or Astro; raw Node imports cannot load automatically imported CSS.
-
-React and React DOM must use matching major versions. The demo, unit tests, and desktop/mobile browser tests use React 19. A separate browser project tests React 18.3.1. Styles target Chrome 123+, Firefox 120+, and Safari 17.5+; automated browser tests currently use Chromium.
-
-## Development
-
-Use Node 24 (minimum 22.12) and pnpm 11.1.2.
-
-```sh
-pnpm install --frozen-lockfile
-pnpm dev
-```
-
-The demo runs at `http://127.0.0.1:4321`. Library watch builds update the demo.
-
-```sh
-pnpm build
-pnpm typecheck
-pnpm lint
-pnpm format:check
-pnpm test
-pnpm size
-pnpm exec playwright install chromium
-pnpm test:e2e
-```
-
-The size check requires less than 5,000 bytes of gzipped JavaScript and less than 2,000 bytes of minified CSS, excluding React peers and source maps. Browser tests exercise the built package, including automatic styles.
-
-Create a local tarball with `pnpm --filter react-pinote pack`. Install the resulting `.tgz` in a CSS-aware React project to test before publication. This command does not publish to npm.
-
-## Vercel
-
-Import the repository with root directory `.` and Node 24 selected. The root `vercel.json` specifies a frozen pnpm install, `pnpm build`, and `apps/demo/dist` as output. The Astro site is static and needs no server adapter. Deployment and npm publication are separate, manual release steps.
+Panels open after hydration and use a portal. They stay within the viewport. Motion respects the user's reduced-motion preference.
 
 ## License
 
-MIT. See [LICENSE](./LICENSE).
+[MIT](LICENSE)

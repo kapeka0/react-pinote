@@ -13,7 +13,8 @@
     "**/*.css"
   ],
   "files": [
-    "dist"
+    "dist",
+    "docs"
   ],
   "main": "./dist/index.js",
   "module": "./dist/index.js",
