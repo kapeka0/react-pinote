@@ -638,8 +638,13 @@ test("expansion moves one avatar on a stable surface and reverses without a jump
     ),
   ).toBe(false);
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await trigger.click();
+  // Hover can replace the trigger with the panel before the click lands.
+  await page.mouse.click(
+    anchor.x + anchor.width / 2,
+    anchor.y + anchor.height / 2,
+  );
   await expect(panel).toBeVisible();
+  await expect(panel).toBeFocused();
   await expect(panel).toHaveCSS("transition-property", "opacity");
   await expect(panel).toHaveCSS("transition-duration", "0.2s");
   await expect(panel).toHaveCSS("transform", "none");
@@ -739,8 +744,15 @@ test("expands from the marker's pointed corner and contracts back into it", asyn
   await page.keyboard.press("Escape");
   await expect(panel).toHaveCount(0);
   await expect(trigger).toBeVisible();
-  await trigger.click();
+  await trigger.hover();
   await expect(panel).toBeVisible();
+  // Activate the visible surface at the marker, even after it has expanded.
+  await page.mouse.click(
+    marker.x + marker.width / 2,
+    marker.y + marker.height / 2,
+  );
+  await expect(panel).toBeVisible();
+  await expect(panel).toBeFocused();
 });
 
 test("expanded keyboard focus remains visible and can leave the message", async ({
