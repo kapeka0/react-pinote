@@ -7,6 +7,7 @@
   },
   "scripts": {
     "build": "pnpm -r --if-present build",
+    "og": "pnpm --filter react-pinote build && pnpm --filter @react-pinote/demo og",
     "dev": "pnpm --filter react-pinote build && pnpm --parallel --filter react-pinote --filter @react-pinote/demo dev",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

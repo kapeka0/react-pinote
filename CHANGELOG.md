@@ -4,6 +4,7 @@
 
 - Add a copy button to the landing's installation command, with animated clipboard and checkmark icons.
 - Smooth the GitHub link's hover color transition and open the repository in a new tab.
+- Add an optimized landing screenshot for link previews, Open Graph and Twitter card metadata, and a documented regeneration command.
 
 ## 0.1.1
 

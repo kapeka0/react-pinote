@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "astro dev --host 127.0.0.1",
     "build": "astro build",
+    "og": "node scripts/generate-og.mjs",
     "preview": "astro preview --host 127.0.0.1",
     "typecheck": "astro check"
   },

@@ -7,6 +7,12 @@ import claudeLogo from "../assets/claude.svg?url&no-inline";
 import kimiLogo from "../assets/kimi.svg?url&no-inline";
 import interFont from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
 import "../styles/demo.css";
+const description =
+  "Lightweight annotations for your React UI. An interactive react-pinote demo.";
+const canonical = new URL("/", Astro.site);
+const ogImage = new URL("/og-image.png", Astro.site);
+const ogAlt =
+  "The react-pinote landing page with floating annotation markers and the npm install command.";
 const kapeka = await getImage({
   src: kapekaPhoto,
   width: 96,
@@ -20,10 +26,23 @@ const kapeka = await getImage({
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="description"
-      content="Lightweight annotations for your React UI. An interactive react-pinote demo."
-    />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="react-pinote" />
+    <meta property="og:title" content="react-pinote" />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical.href} />
+    <meta property="og:image" content={ogImage.href} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="react-pinote" />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage.href} />
+    <meta name="twitter:image:alt" content={ogAlt} />
     <meta name="color-scheme" content="light" />
     <title>react-pinote</title>
     <link rel="icon" href="data:," />
