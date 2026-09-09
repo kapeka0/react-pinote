@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Shorten the README to installation, basic usage and documentation links. Keep text, drag and interaction examples in the API reference.
+
 ## 0.4.0
 
 - Export `PinoteTrigger`, a reusable native button with the default marker appearance and app-owned children. Use it through `render` to keep Pinote's interaction and focus behavior.

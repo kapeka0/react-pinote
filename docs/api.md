@@ -26,6 +26,23 @@ A `div` with `position: relative` that defines the coordinates and drag bounds f
 
 Place layers inside a `PinoteProvider`. A layer does not create its own open state. Attachments to text or components need only the provider. Put theme variables on the layer or an app-owned ancestor; the provider has no `className` or `style`.
 
+```tsx
+import { Pinote, PinoteLayer, PinoteProvider } from "react-pinote";
+
+<PinoteProvider>
+  <PinoteLayer style={{ height: 320 }}>
+    <Pinote
+      id="movable"
+      draggable
+      defaultPosition={{ x: 25, y: 40 }}
+      content="Drag me around."
+    />
+  </PinoteLayer>
+</PinoteProvider>;
+```
+
+Use `defaultPosition` for internal position state. To control the position from your app, pass `position` and `onPositionChange`. Save completed moves with `onDragEnd`. Coordinates are percentages measured from the layer's top-left corner.
+
 ## Pinote
 
 With `children`, the marker attaches to their wrapper. Without children, it uses the layer's coordinates.
@@ -168,7 +185,36 @@ Decoration layout belongs to your app. Put badges, images or overlapping element
 
 Underlines text and attaches a marker to it. Requires `id`, `content` and `children`. Accepts the appearance props above and an optional `position`.
 
+```tsx
+import { PinoteHighlight, PinoteProvider } from "react-pinote";
+
+<PinoteProvider>
+  <p>
+    A thought attached to a{" "}
+    <PinoteHighlight
+      id="word"
+      variant="expand"
+      content="A little context, right here."
+    >
+      word
+    </PinoteHighlight>
+    .
+  </p>
+</PinoteProvider>;
+```
+
+`variant="expand"` turns the marker into the content panel. The default `popover` variant opens a separate panel.
+
 The marker's pointed corner touches the text's top-right corner by default. The highlight is an inline-block box; longer text can wrap inside it. Use text or non-interactive inline markup as children. Put controls in `content`. Highlights do not support dragging.
+
+## Interaction
+
+- Hover or keyboard focus opens a preview. Set `preview={false}` for explicit activation only.
+- Click, tap, Enter or Space keeps the content open. An outside click or Escape closes it.
+- Explicit opening focuses the first available control, or the panel itself. Use `initialFocusRef` to choose another target. Hover never moves focus.
+- Tab moves through the content without trapping focus. Escape restores focus to the trigger when focus was inside.
+
+Panels open after hydration and use a portal by default. They stay within the viewport. Motion respects the user's reduced-motion preference.
 
 ## Composition and focus
 
