@@ -41,6 +41,11 @@ export default defineConfig({
     },
     rollupOptions: {
       external: ["react", "react-dom", "react/jsx-runtime", "react-dom/client"],
+      output: {
+        // Compact whitespace while retaining purity annotations for consumers' tree shaking.
+        minify: true,
+        comments: { annotation: true },
+      },
     },
   },
   test: {

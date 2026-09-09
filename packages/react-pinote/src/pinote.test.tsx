@@ -5,6 +5,116 @@ import { describe, expect, it, vi } from "vitest";
 import { Pinote, PinoteLayer } from "./index";
 
 describe("Pinote", () => {
+  it("keeps a custom icon beside the author avatar", async () => {
+    const user = userEvent.setup();
+    render(
+      <PinoteLayer>
+        <Pinote
+          id="beside"
+          position="center"
+          author={{ name: "Maya", avatarUrl: "/maya.webp" }}
+          authorPlacement="beside"
+          icon="1"
+          content="Side author"
+        />
+      </PinoteLayer>,
+    );
+    const trigger = screen.getByRole("button", {
+      name: "Open pinote from Maya",
+    });
+    expect(trigger).toHaveTextContent("1");
+    expect(trigger.querySelector("img")).toHaveClass("pn-b");
+    expect(trigger.querySelector("img")).toHaveStyle({
+      left: "var(--pinote-aside-offset,9px)",
+      width: "100%",
+    });
+    await user.click(trigger);
+    expect(screen.getByRole("dialog")).toHaveTextContent("Maya");
+  });
+  it("allows explicit activation without hover or focus previews", async () => {
+    const user = userEvent.setup();
+    render(
+      <PinoteLayer>
+        <Pinote
+          id="click"
+          position="center"
+          preview={false}
+          content="Click content"
+        />
+      </PinoteLayer>,
+    );
+    const trigger = screen.getByRole("button", { name: "Open pinote" });
+    await user.hover(trigger);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    await user.unhover(trigger);
+    await user.tab();
+    expect(trigger).toHaveFocus();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    await user.keyboard("{Enter}");
+    await waitFor(() => expect(screen.getByRole("dialog")).toHaveFocus());
+    await user.click(document.body);
+    expect(trigger).toBeVisible();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("reports outside interactions without owning removal policy", async () => {
+    const user = userEvent.setup();
+    const outside = vi.fn();
+    render(
+      <>
+        <PinoteLayer>
+          <Pinote
+            id="events"
+            position="center"
+            preview={false}
+            onInteractOutside={outside}
+            content={
+              <>
+                <button>Reply</button>
+                <button>Save</button>
+              </>
+            }
+          />
+        </PinoteLayer>
+        <button>Continue</button>
+      </>,
+    );
+    const trigger = screen.getByRole("button", { name: "Open pinote" });
+    await user.click(document.body);
+    expect(outside).toHaveBeenCalledOnce();
+    expect(outside.mock.calls[0]![0].type).toBe("pointerdown");
+    outside.mockClear();
+    await user.click(trigger);
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Reply" })).toHaveFocus(),
+    );
+    await user.tab();
+    expect(screen.getByRole("button", { name: "Save" })).toHaveFocus();
+    expect(outside).not.toHaveBeenCalled();
+    await user.tab();
+    expect(screen.getByRole("button", { name: "Continue" })).toHaveFocus();
+    expect(outside).toHaveBeenCalledOnce();
+    expect(outside.mock.calls[0]![0].type).toBe("focusout");
+    expect(trigger).toBeVisible();
+  });
+
+  it("allows apps to cancel outside pointer dismissal", async () => {
+    const user = userEvent.setup();
+    render(
+      <PinoteLayer>
+        <Pinote
+          id="keep"
+          position="center"
+          onInteractOutside={(event) => event.preventDefault()}
+          content="Keep open"
+        />
+      </PinoteLayer>,
+    );
+    await user.click(screen.getByRole("button", { name: "Open pinote" }));
+    await user.click(document.body);
+    expect(screen.getByRole("dialog")).toHaveTextContent("Keep open");
+  });
+
   it("reveals an anonymous pinote without rendering invented author details", async () => {
     const user = userEvent.setup();
 

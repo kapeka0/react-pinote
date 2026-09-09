@@ -9,9 +9,9 @@ export type PinoteContextValue = {
   portal: boolean;
   portalContainer: HTMLElement | null;
   close: () => void;
+  open: (id: string) => void;
   dismissPreview: (id: string) => void;
   preview: (id: string) => void;
-  togglePersistent: (id: string) => void;
 };
 
 export const PinoteContext = createContext<PinoteContextValue | null>(null);

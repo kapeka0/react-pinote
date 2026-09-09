@@ -1,91 +1,73 @@
 /* Low-specificity defaults; public customization uses --pinote-* and data-slot. */
 .pn {
-  color-scheme: light dark;
+  --pn-e: var(--pinote-easing, cubic-bezier(0.2, 0, 0, 1));
+  --pn-t: var(--pinote-duration, var(--pn-d, 140ms));
+  --pn-s: var(--pinote-background, var(--pn-bg, #2c2c2c));
 }
-:where(.dark) .pn,
-.pn[data-pinote-theme="dark"] {
+[data-pinote-theme="dark"] {
   color-scheme: dark;
 }
-:where(.light) .pn,
-.pn[data-pinote-theme="light"] {
+[data-pinote-theme="light"] {
   color-scheme: light;
 }
 .pn-layer {
   position: relative;
 }
-.pn-w {
-  position: relative;
-  display: inline-block;
-  max-width: 100%;
-  vertical-align: baseline;
-}
-.pn-p {
-  position: absolute;
-  translate: -50% -50%;
-}
 .pn-t,
 .pn-c {
   box-sizing: border-box;
-  color: var(
-    --pinote-foreground,
-    var(--popover-foreground, light-dark(#202020, #fafafa))
-  );
-  background: var(
-    --pinote-background,
-    var(--popover, light-dark(#fff, #202020))
-  );
+  color: var(--pinote-foreground, #fff);
+  background: var(--pn-s);
   border: 0;
-  box-shadow: 0 2px 6px #0002;
+  box-shadow: 0 3px 8px #0003;
+}
+.pn-t,
+.pn-f {
+  display: grid;
+  place-items: center;
 }
 .pn-t {
-  display: inline-grid;
   position: relative;
-  place-items: center;
-  vertical-align: middle;
-  width: var(--pinote-size, 24px);
-  height: var(--pinote-size, 24px);
-  padding: 3px;
-  border-radius: var(--pinote-trigger-radius, 50% 50% 50% 0);
+  width: var(--pinote-size, 25px);
+  aspect-ratio: 1;
+  padding: 0;
   cursor: pointer;
   touch-action: manipulation;
 }
-.pn-t:focus-visible,
-.pn-c:focus-visible {
+.pn-f {
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  border-radius: inherit;
+}
+:is(.pn-t, .pn-c):focus-visible {
   outline-offset: 3px;
 }
 .pn-t svg {
   width: 16px;
   height: 16px;
 }
-[data-slot="pinote-avatar"] {
-  width: 18px;
-  height: 18px;
+.pn-v {
+  width: 21px;
+  aspect-ratio: 1;
   object-fit: cover;
   border-radius: 50%;
 }
-.pn-c {
-  z-index: 50;
-  width: min(var(--pinote-width, 280px), calc(100vw - 24px));
-  max-height: calc(100dvh - 24px);
-  overflow: auto;
-  overscroll-behavior: contain;
-  border-radius: var(--pinote-radius, var(--radius, 12px));
-  padding: 16px;
-  font: 400 0.875rem/1.5 system-ui;
-  text-align: start;
-  overflow-wrap: anywhere;
-}
-.pn-a {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-  font-weight: 600;
-}
-.pn-h > [data-slot="pinote-highlight-text"] {
+.pn-h > span {
   text-decoration: underline dotted var(--pinote-accent, currentColor);
   text-underline-offset: 0.15em;
   cursor: pointer;
+}
+.pn-c {
+  z-index: 50;
+  width: max-content;
+  max-width: min(var(--pinote-width, 280px), calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  overflow: auto;
+  border-radius: var(--pinote-radius, var(--radius, 12px));
+  padding: 16px;
+  font: 0.875rem/1.5 system-ui;
+  overflow-wrap: anywhere;
 }
 @media (pointer: coarse) {
   .pn-t::after {
@@ -95,19 +77,44 @@
   }
 }
 @media (prefers-reduced-motion: no-preference) {
-  .pn-c:not([data-animation="none"]) {
-    animation: pn-enter var(--pinote-duration, 140ms) ease-out;
+  .pn-b,
+  .pn-t,
+  .pn-c {
+    transition: var(--pn-t) var(--pn-e);
+    transition-property: opacity, scale, transform, clip-path, translate;
   }
-  .pn-c[data-animation="scale"] {
-    --pn-from: scale(0.96);
-  }
-  .pn-c[data-animation="slide"] {
-    --pn-from: translateY(6px);
+  [data-entrance="pop"] {
+    animation: pn-enter var(--pinote-entrance-duration, 240ms) var(--pn-e)
+      var(--pinote-entrance-delay, 0s) backwards;
   }
   @keyframes pn-enter {
     from {
-      opacity: 0;
-      transform: var(--pn-from, none);
+      scale: 0;
     }
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .pn-t:hover {
+      scale: var(--pinote-hover-scale, 0.96);
+    }
+    .pn-t:hover > .pn-b {
+      translate: var(--pinote-aside-reveal, 3px);
+    }
+  }
+}
+.pn-t[data-dragging] {
+  cursor: grabbing;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pn-c[data-leaving] {
+    opacity: 0 !important;
+  }
+  .pn-c {
+    transition: opacity 200ms !important;
+    clip-path: none !important;
+  }
+  .pn-c,
+  .pn-v,
+  .pn-l {
+    transform: none !important;
   }
 }

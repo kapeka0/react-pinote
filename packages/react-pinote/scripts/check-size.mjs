@@ -5,7 +5,11 @@ import { URL } from "node:url";
 const js = await readFile(new URL("../dist/index.js", import.meta.url));
 const css = await readFile(new URL("../dist/styles.css", import.meta.url));
 const jsBytes = gzipSync(js).byteLength;
+// Pinote UI, content slots, focus handling and state hooks; no app-level features.
+const jsBudget = 6500;
+// Public motion variables add CSS tokens, with no runtime dependency.
+const cssBudget = 2100;
 console.log(
-  `JavaScript: ${jsBytes} B gzip / 5000 B. CSS: ${css.byteLength} B minified / 2000 B (${gzipSync(css).byteLength} B gzip).`,
+  `JavaScript: ${jsBytes} B gzip / ${jsBudget} B. CSS: ${css.byteLength} B minified / ${cssBudget} B (${gzipSync(css).byteLength} B gzip).`,
 );
-if (jsBytes >= 5000 || css.byteLength >= 2000) process.exitCode = 1;
+if (jsBytes >= jsBudget || css.byteLength >= cssBudget) process.exitCode = 1;

@@ -52,14 +52,13 @@ export function PinoteLayer({
         portal,
         portalContainer,
         close: () => request(null),
+        open: (id) => request(id, true),
         preview: (id) => {
           if (!persistent) request(id);
         },
         dismissPreview: (id) => {
           if (openId === id && !persistent) request(null);
         },
-        togglePersistent: (id) =>
-          request(openId === id && persistent ? null : id, true),
       }}
     >
       <div

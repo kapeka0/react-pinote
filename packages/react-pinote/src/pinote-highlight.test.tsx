@@ -61,7 +61,7 @@ describe("PinoteHighlight", () => {
     );
   });
 
-  it("positions content from the inline activator", async () => {
+  it("positions content from the inline trigger", async () => {
     const user = userEvent.setup();
 
     render(
@@ -82,7 +82,7 @@ describe("PinoteHighlight", () => {
     });
   });
 
-  it("opens from the inline activator with the keyboard", async () => {
+  it("opens from the inline trigger with the keyboard", async () => {
     const user = userEvent.setup();
 
     render(

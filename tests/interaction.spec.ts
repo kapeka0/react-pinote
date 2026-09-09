@@ -18,10 +18,9 @@ test("multiline text anchors at its top-right corner and content remains interac
   });
   const corner = await text.boundingBox();
   const bounds = await trigger.boundingBox();
-  expect(
-    Math.abs(bounds!.x + bounds!.width / 2 - (corner!.x + corner!.width)),
-  ).toBeLessThan(1);
-  expect(Math.abs(bounds!.y + bounds!.height / 2 - corner!.y)).toBeLessThan(1);
+  expect(Math.abs(bounds!.x - (corner!.x + corner!.width))).toBeLessThan(1);
+  expect(Math.abs(bounds!.y + bounds!.height - corner!.y)).toBeLessThan(1);
+  await expect(trigger).toHaveCSS("border-bottom-left-radius", "0px");
   await trigger.click();
   await page.getByRole("button", { name: "Increase" }).click();
   await expect(page.getByRole("dialog")).toContainText("1 clicks");
@@ -42,6 +41,8 @@ test("multiline text anchors at its top-right corner and content remains interac
 test("pointer coordinates place the center at the requested point on a bordered surface", async ({
   page,
 }) => {
+  // Measure layout independently of hover and entrance animations.
+  await page.emulateMedia({ reducedMotion: "reduce" });
   const surface = page.getByTestId("surface");
   const bounds = (await surface.boundingBox())!;
   const desired = { x: bounds.x + bounds.width * 0.25, y: bounds.y + 60 };
@@ -99,7 +100,7 @@ test("component attachments accept named corners and percentage coordinates", as
 test("open messages follow position changes and attachment resizing", async ({
   page,
 }) => {
-  await page.setViewportSize({ width: 700, height: 1200 });
+  await page.setViewportSize({ width: 700, height: 1800 });
   await page.getByLabel("Keep attachment open").check();
   const panel = page.getByRole("dialog");
   const trigger = page.getByRole("button", {
@@ -119,7 +120,7 @@ test("open messages follow position changes and attachment resizing", async ({
   await expect.poll(aligned).toBeLessThan(1);
 });
 
-test("nested themes keep activator and portalled message backgrounds identical", async ({
+test("nested themes keep trigger and portalled message backgrounds identical", async ({
   page,
 }) => {
   await page.emulateMedia({ colorScheme: "light" });
@@ -144,4 +145,79 @@ test("nested themes keep activator and portalled message backgrounds identical",
     "background-color",
     await trigger.evaluate((node) => getComputedStyle(node).backgroundColor),
   );
+});
+
+test("sets the message transform origin on the edge facing its trigger", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  const trigger = page.getByRole("button", {
+    name: "neutral pinote",
+    exact: true,
+  });
+  const root = trigger.locator("../..");
+  await trigger.click();
+  const panel = page.getByRole("dialog", {
+    name: "neutral pinote",
+    exact: true,
+  });
+  const cases = [
+    {
+      viewport: { width: 900, height: 700 },
+      x: 80,
+      y: 350,
+      side: "right",
+      origin: [0, 0.5],
+    },
+    {
+      viewport: { width: 900, height: 700 },
+      x: 820,
+      y: 350,
+      side: "left",
+      origin: [1, 0.5],
+    },
+    {
+      viewport: { width: 320, height: 700 },
+      x: 160,
+      y: 80,
+      side: "bottom",
+      origin: [0.5, 0],
+    },
+    {
+      viewport: { width: 320, height: 700 },
+      x: 160,
+      y: 620,
+      side: "top",
+      origin: [0.5, 1],
+    },
+  ] as const;
+  for (const { viewport, x, y, side, origin } of cases) {
+    await page.setViewportSize(viewport);
+    await root.evaluate(
+      (node, position) => {
+        Object.assign((node as HTMLElement).style, {
+          position: "fixed",
+          left: `${position.x}px`,
+          top: `${position.y}px`,
+        });
+      },
+      { x, y },
+    );
+    await page.evaluate(() => dispatchEvent(new Event("resize")));
+    await expect(panel).toHaveAttribute("data-side", side);
+    const metrics = await panel.evaluate((node) => ({
+      height: (node as HTMLElement).offsetHeight,
+      origin: getComputedStyle(node).transformOrigin,
+      width: (node as HTMLElement).offsetWidth,
+    }));
+    const [actualX, actualY] = metrics.origin.split(" ") as [string, string];
+    expect(Number.parseFloat(actualX)).toBeCloseTo(
+      metrics.width * origin[0],
+      0,
+    );
+    expect(Number.parseFloat(actualY)).toBeCloseTo(
+      metrics.height * origin[1],
+      0,
+    );
+  }
 });

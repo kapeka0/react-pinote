@@ -7,6 +7,7 @@ export type PinoteSide = "bottom" | "left" | "right" | "top";
 type FloatingPosition = {
   side: PinoteSide;
   style: CSSProperties;
+  anchorCenter: { x: number; y: number };
 };
 
 const GAP = 12;
@@ -18,27 +19,35 @@ function clamp(value: number, minimum: number, maximum: number) {
 
 export function usePinotePosition(
   isOpen: boolean,
-  triggerRef: RefObject<HTMLElement | null>,
+  anchorRef: RefObject<HTMLElement | null>,
   contentRef: RefObject<HTMLElement | null>,
   portalRoot: HTMLElement | null | false,
   anchorPosition: PinotePosition,
+  alignCorner: string | false,
 ) {
   const [position, setPosition] = useState<FloatingPosition>({
     side: "right",
+    anchorCenter: { x: 0, y: 0 },
     style: { left: 0, position: "fixed", top: 0, visibility: "hidden" },
   });
 
   useEffect(() => {
-    if (!isOpen || !triggerRef.current || !contentRef.current) {
+    if (!isOpen || !anchorRef.current || !contentRef.current) {
       return;
     }
 
     const updatePosition = () => {
-      if (!triggerRef.current || !contentRef.current) {
+      if (!anchorRef.current || !contentRef.current) {
         return;
       }
 
-      const trigger = triggerRef.current.getBoundingClientRect();
+      const trigger = anchorRef.current.getBoundingClientRect();
+      // Include overflowing trigger decoration for a separate popover.
+      if (!alignCorner)
+        trigger.width *= Math.max(
+          1,
+          anchorRef.current.scrollWidth / anchorRef.current.clientWidth || 1,
+        );
       const measured = contentRef.current.getBoundingClientRect();
       // offset sizes exclude the opening scale animation.
       const content = {
@@ -73,20 +82,42 @@ export function usePinotePosition(
         top = trigger.top - content.height - GAP;
       }
 
+      if (alignCorner) {
+        left = alignCorner.includes("left")
+          ? trigger.left
+          : trigger.right - content.width;
+        top = alignCorner.includes("top")
+          ? trigger.top
+          : trigger.bottom - content.height;
+      }
+      left = clamp(
+        left,
+        VIEWPORT_PADDING,
+        window.innerWidth - content.width - VIEWPORT_PADDING,
+      );
+      top = clamp(
+        top,
+        VIEWPORT_PADDING,
+        window.innerHeight - content.height - VIEWPORT_PADDING,
+      );
       setPosition({
         side,
+        anchorCenter: {
+          x: trigger.left + trigger.width / 2 - left,
+          y: trigger.top + trigger.height / 2 - top,
+        },
         style: {
-          left: clamp(
-            left,
-            VIEWPORT_PADDING,
-            window.innerWidth - content.width - VIEWPORT_PADDING,
-          ),
+          left,
           position: "fixed",
-          top: clamp(
-            top,
-            VIEWPORT_PADDING,
-            window.innerHeight - content.height - VIEWPORT_PADDING,
-          ),
+          top,
+          transformOrigin:
+            side[0] === "r"
+              ? "left"
+              : side[0] === "l"
+                ? "right"
+                : side[0] === "t"
+                  ? "bottom"
+                  : "top",
           visibility: "visible",
         },
       });
@@ -102,10 +133,10 @@ export function usePinotePosition(
       typeof ResizeObserver === "undefined"
         ? null
         : new ResizeObserver(updatePosition);
-    observer?.observe(triggerRef.current);
+    observer?.observe(anchorRef.current);
     observer?.observe(contentRef.current);
     for (
-      let ancestor = triggerRef.current.parentElement;
+      let ancestor = anchorRef.current.parentElement;
       ancestor;
       ancestor = ancestor.parentElement
     ) {
@@ -121,10 +152,11 @@ export function usePinotePosition(
   }, [
     contentRef,
     isOpen,
-    triggerRef,
+    anchorRef,
     portalRoot,
     anchorPosition.x,
     anchorPosition.y,
+    alignCorner,
   ]);
 
   return position;
