@@ -3,6 +3,9 @@
 ## Unreleased
 
 - Smooth the expansion's closing curve while preserving its opening animation.
+- Reduce the demo's marker entrance delay from 500ms to 250ms.
+- Add the npm installation command and repository link to the landing.
+- Document npm installation and require documentation updates with code changes.
 
 ## 0.1.0
 

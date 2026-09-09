@@ -32,7 +32,7 @@ body {
   margin: 0;
 }
 .demo {
-  --pinote-entrance-delay: 500ms;
+  --pinote-entrance-delay: 250ms;
   display: grid;
   place-items: center;
   min-height: 100svh;
@@ -67,6 +67,43 @@ body {
   font-weight: 400;
   line-height: 1.6;
   text-wrap: pretty;
+}
+.install-command {
+  margin: 0;
+  padding: 0.65rem 1rem;
+  border: 1px solid oklch(0.92 0 0);
+  border-radius: 8px;
+  background: oklch(0.98 0 0);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+.install-command code {
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+}
+.demo-footer {
+  position: absolute;
+  inset-block-end: max(1rem, env(safe-area-inset-bottom));
+  inset-inline: 0;
+  display: flex;
+  justify-content: center;
+}
+.demo-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding-inline: 0.5rem;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+.demo-footer a:hover {
+  color: var(--foreground);
+}
+.demo-footer a:focus-visible {
+  border-radius: 4px;
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
 }
 html [data-slot="pinote-content"] {
   font-family: inherit;

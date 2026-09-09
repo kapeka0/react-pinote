@@ -6,22 +6,15 @@ Supports React 18 and 19. Includes TypeScript types and CSS. React and React DOM
 
 [API reference](docs/api.md) · [Styling](docs/styling.md) · [Development](docs/development.md)
 
-## Install from this repository
-
-From the repository root:
+## Install
 
 ```sh
-pnpm install --frozen-lockfile
-pnpm --filter react-pinote pack
-```
-
-Install the generated package in your React app:
-
-```sh
-pnpm add /path/to/react-pinote-0.1.0.tgz
+npm i react-pinote
 ```
 
 Use matching React and React DOM versions with a CSS-aware bundler such as Vite or Astro. Styles load with the JavaScript import.
+
+Try the [live demo](https://react-pinote.vercel.app). To build or install the package from source, see [development](docs/development.md#local-package).
 
 ## Usage
 
