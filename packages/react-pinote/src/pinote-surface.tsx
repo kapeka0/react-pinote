@@ -57,15 +57,13 @@ export function PinoteSurface({
   const Root = attached && !highlight ? "div" : "span";
   const contentId = useId();
   const expand = variant === "expand";
+  const automatic = orientation === "auto";
   const corner = pinoteCorner(orientation, point, attached);
-  const cardRadius = pinoteRadius(
-    corner,
-    "var(--pinote-radius,var(--radius,12px))",
-  );
   const appearance = { "--pn-bg": color, ...style } as CSSProperties;
   const visible = usePresence(isOpen, contentRef);
   const [entered, setEntered] = useState(false);
   const openTarget = isOpen && entered;
+  const state = isOpen ? "open" : "closed";
   const motion = animation ?? context.animation;
   const portalRoot = context.portal ? context.portalContainer : false;
   const floating = usePinotePosition(
@@ -75,12 +73,15 @@ export function PinoteSurface({
     portalRoot,
     point,
     expand ? corner : false,
+    automatic,
   );
-  const clip = pinoteClip(
-    cardRadius,
-    floating.anchorCenter,
-    floating.anchorSize,
+  const resolvedCorner = (automatic && floating.corner) || corner;
+  const center = floating.anchorCenter;
+  const cardRadius = pinoteRadius(
+    resolvedCorner,
+    "var(--pinote-radius,var(--radius,12px))",
   );
+  const clip = pinoteClip(cardRadius, center, floating.anchorSize);
   usePortalTheme(visible, rootRef, contentRef, portalRoot);
 
   const leadingRef = useRef<HTMLElement | null>(null);
@@ -91,9 +92,9 @@ export function PinoteSurface({
     const visual = leadingRef.current;
     if (expand && visual)
       setLeadingFrom(
-        `translate(${floating.anchorCenter.x - visual.offsetLeft - visual.offsetWidth / 2}px,${floating.anchorCenter.y - visual.offsetTop - visual.offsetHeight / 2}px)`,
+        `translate(${center.x - visual.offsetLeft - visual.offsetWidth / 2}px,${center.y - visual.offsetTop - visual.offsetHeight / 2}px)`,
       );
-  }, [expand, floating, leading, author?.avatarUrl]);
+  }, [expand, center, leading, author?.avatarUrl]);
   const focusedOpen = useRef(false);
   const focusOrigin = useRef<Element | null>(null);
   useEffect(() => {
@@ -292,7 +293,7 @@ export function PinoteSurface({
               ? "pinote-attachment"
               : "pinote"
         }
-        data-state={interaction.isOpen ? "open" : "closed"}
+        data-state={state}
         ref={(node) => {
           interaction.rootRef.current = node;
         }}
@@ -364,8 +365,8 @@ export function PinoteSurface({
                   : "Open pinote")
             }
             data-slot="pinote-trigger"
-            data-state={isOpen ? "open" : "closed"}
-            data-orientation={corner}
+            data-state={state}
+            data-orientation={resolvedCorner}
             data-entrance={context.ready ? entranceAnimation : "none"}
             data-draggable={draggable ? "" : undefined}
             className={render ? "pn-r" : undefined}

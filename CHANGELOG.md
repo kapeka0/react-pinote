@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Keep expansion entry and exit anchored to the marker when the panel shifts to fit a small viewport.
+- Keep the pointed corner fixed throughout expansion on small screens. Fit content to the available space and let automatic orientation choose the other horizontal side when needed.
 - Shorten the README to installation, basic usage and documentation links. Keep text, drag and interaction examples in the API reference.
 
 ## 0.4.0

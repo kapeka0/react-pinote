@@ -220,6 +220,7 @@ function Fixture() {
           <Pinote
             id="expand"
             aria-label="Expanding pinote"
+            orientation={orientation}
             position={{ x: 35, y: 65 }}
             variant="expand"
             author={{

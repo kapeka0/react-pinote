@@ -284,9 +284,9 @@ test("small screens keep cards inside the viewport and reduced motion stays stil
 });
 
 for (const width of [320, 412, 600, 900]) {
-  test(`expansions start and end at their markers on a ${width}px screen`, async ({
+  test(`expansions keep their pointed corner anchored on a ${width}px screen`, async ({
     page,
-  }) => {
+  }, testInfo) => {
     await page.setViewportSize({ width, height: 839 });
     await page.emulateMedia({ reducedMotion: "no-preference" });
     await page.goto("/");
@@ -320,20 +320,68 @@ for (const width of [320, 412, 600, 900]) {
       expect(start.y, name).toBeCloseTo(marker.y, 0);
       expect(start.width).toBeCloseTo(marker.width, 0);
       expect(start.height).toBeCloseTo(marker.height, 0);
+      const corner = await panel.evaluate((node) => {
+        const style = getComputedStyle(node);
+        return {
+          right:
+            style.borderTopRightRadius === "0px" ||
+            style.borderBottomRightRadius === "0px",
+          bottom:
+            style.borderBottomLeftRadius === "0px" ||
+            style.borderBottomRightRadius === "0px",
+        };
+      });
+      const expectCorner = (bounds: typeof marker) => {
+        expect(bounds.x + (corner.right ? bounds.width : 0), name).toBeCloseTo(
+          marker.x + (corner.right ? marker.width : 0),
+          0,
+        );
+        expect(
+          bounds.y + (corner.bottom ? bounds.height : 0),
+          name,
+        ).toBeCloseTo(marker.y + (corner.bottom ? marker.height : 0), 0);
+      };
+      for (const fraction of [0.25, 0.5, 0.75]) {
+        await panel.evaluate((node, progress) => {
+          node.getAnimations({ subtree: true }).forEach((animation) => {
+            animation.currentTime =
+              Number(animation.effect!.getTiming().duration) * progress;
+          });
+        }, fraction);
+        expectCorner(await clippedBounds(panel));
+      }
       await panel.evaluate((node) =>
         node
           .getAnimations({ subtree: true })
           .forEach((animation) => animation.finish()),
       );
       const opened = (await panel.boundingBox())!;
+      expectCorner(opened);
       expect(opened.x).toBeGreaterThanOrEqual(11);
       expect(opened.x + opened.width).toBeLessThanOrEqual(width - 11);
+      if (testInfo.project.name === "mobile" && width <= 412) {
+        await page.screenshot({
+          path: testInfo.outputPath(
+            `${name.includes("Kapeka") ? "kapeka" : "word"}.png`,
+          ),
+        });
+      }
       await page.mouse.move(0, 0);
       await page.keyboard.press("Escape");
       const exiting = page.locator(
         '[data-slot="pinote-content"][data-leaving]',
       );
       await expect(exiting).toHaveAttribute("inert", "");
+      for (const fraction of [0.25, 0.5, 0.75]) {
+        await exiting.evaluate((node, progress) => {
+          node.getAnimations({ subtree: true }).forEach((animation) => {
+            animation.pause();
+            animation.currentTime =
+              Number(animation.effect!.getTiming().duration) * progress;
+          });
+        }, fraction);
+        expectCorner(await clippedBounds(exiting));
+      }
       await exiting.evaluate((node) =>
         node.getAnimations({ subtree: true }).forEach((animation) => {
           animation.pause();

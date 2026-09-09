@@ -203,7 +203,7 @@ import { PinoteHighlight, PinoteProvider } from "react-pinote";
 </PinoteProvider>;
 ```
 
-`variant="expand"` turns the marker into the content panel. The default `popover` variant opens a separate panel.
+`variant="expand"` turns the marker into the content panel. Its pointed corner stays anchored as the panel grows within the available space. With `orientation="auto"`, it can open to the other horizontal side when space is tight. Set a corner explicitly to keep that direction. The default `popover` variant opens a separate panel.
 
 The marker's pointed corner touches the text's top-right corner by default. The highlight is an inline-block box; longer text can wrap inside it. Use text or non-interactive inline markup as children. Put controls in `content`. Highlights do not support dragging.
 

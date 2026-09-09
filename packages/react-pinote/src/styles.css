@@ -61,8 +61,8 @@
 .pn-c {
   z-index: 50;
   width: max-content;
-  max-width: min(var(--pinote-width, 280px), calc(100vw - 24px));
-  max-height: calc(100dvh - 24px);
+  max-width: min(var(--pinote-width, 280px), var(--pn-w, calc(100vw - 24px)));
+  max-height: var(--pn-h, calc(100dvh - 24px));
   overflow: auto;
   border-radius: var(--pinote-radius, var(--radius, 12px));
   padding: 16px;
