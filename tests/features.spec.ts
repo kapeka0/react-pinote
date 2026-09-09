@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { clippedBounds } from "./expansion-geometry";
 
 test.beforeEach(async ({ page }, testInfo) => {
   await page.goto(
@@ -77,17 +78,30 @@ test("expands from a rectangular custom trigger and animates back to its measure
   await panel.evaluate((node) =>
     Promise.all(node.getAnimations().map((animation) => animation.finished)),
   );
+  const marker = (await trigger.boundingBox())!;
   await page.keyboard.press("Escape");
   const exiting = page.locator('[data-slot="pinote-content"][data-leaving]');
   await expect(exiting).toHaveAttribute("inert", "");
-  const clip = await exiting.evaluate(
-    (node) => (node as HTMLElement).style.clipPath,
-  );
-  expect(clip).toContain("36px");
-  expect(clip).toContain("88px");
   expect(
     await exiting.evaluate((node) => node.getAnimations().length),
   ).toBeGreaterThan(0);
+  await exiting.evaluate((node) =>
+    node.getAnimations({ subtree: true }).forEach((animation) => {
+      animation.pause();
+      animation.currentTime =
+        Number(animation.effect!.getTiming().duration) - 0.01;
+    }),
+  );
+  const clip = await clippedBounds(exiting);
+  expect(clip.x).toBeCloseTo(marker.x, 0);
+  expect(clip.y).toBeCloseTo(marker.y, 0);
+  expect(clip.width).toBeCloseTo(marker.width, 0);
+  expect(clip.height).toBeCloseTo(marker.height, 0);
+  await exiting.evaluate((node) =>
+    node
+      .getAnimations({ subtree: true })
+      .forEach((animation) => animation.finish()),
+  );
   await expect(exiting).toHaveCount(0);
   await expect(trigger).toBeVisible();
   await expect(trigger).toBeFocused();

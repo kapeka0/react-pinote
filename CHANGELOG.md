@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Keep expansion entry and exit anchored to the marker when the panel shifts to fit a small viewport.
 - Shorten the README to installation, basic usage and documentation links. Keep text, drag and interaction examples in the API reference.
 
 ## 0.4.0

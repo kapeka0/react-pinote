@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import type { Locator, Page } from "@playwright/test";
+import { clippedBounds } from "./expansion-geometry";
 
 async function dragBy(page: Page, trigger: Locator, x: number, y: number) {
   await expect(trigger).toHaveAttribute("data-draggable", "");
@@ -281,6 +282,79 @@ test("small screens keep cards inside the viewport and reduced motion stays stil
     320,
   );
 });
+
+for (const width of [320, 412, 600, 900]) {
+  test(`expansions start and end at their markers on a ${width}px screen`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 839 });
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await page.goto("/");
+    await page.locator("html").evaluate((node) => {
+      node.style.setProperty("--pinote-duration", "10s");
+      node.style.setProperty("--pinote-hover-scale", "1");
+      return document.fonts.ready;
+    });
+    for (const name of [
+      "Open pinote from Kapeka",
+      "Open pinote about highlighted text",
+    ]) {
+      const trigger = page.getByRole("button", { name, exact: true });
+      await trigger.evaluate((node) =>
+        node.getAnimations().forEach((animation) => animation.finish()),
+      );
+      const marker = (await trigger.boundingBox())!;
+      await trigger.click();
+      const panel = page.getByRole("dialog");
+      await expect
+        .poll(() => panel.evaluate((node) => node.getAnimations().length))
+        .toBeGreaterThan(0);
+      await panel.evaluate((node) =>
+        node.getAnimations({ subtree: true }).forEach((animation) => {
+          animation.pause();
+          animation.currentTime = 0;
+        }),
+      );
+      const start = await clippedBounds(panel);
+      expect(start.x, name).toBeCloseTo(marker.x, 0);
+      expect(start.y, name).toBeCloseTo(marker.y, 0);
+      expect(start.width).toBeCloseTo(marker.width, 0);
+      expect(start.height).toBeCloseTo(marker.height, 0);
+      await panel.evaluate((node) =>
+        node
+          .getAnimations({ subtree: true })
+          .forEach((animation) => animation.finish()),
+      );
+      const opened = (await panel.boundingBox())!;
+      expect(opened.x).toBeGreaterThanOrEqual(11);
+      expect(opened.x + opened.width).toBeLessThanOrEqual(width - 11);
+      await page.mouse.move(0, 0);
+      await page.keyboard.press("Escape");
+      const exiting = page.locator(
+        '[data-slot="pinote-content"][data-leaving]',
+      );
+      await expect(exiting).toHaveAttribute("inert", "");
+      await exiting.evaluate((node) =>
+        node.getAnimations({ subtree: true }).forEach((animation) => {
+          animation.pause();
+          animation.currentTime =
+            Number(animation.effect!.getTiming().duration) - 0.01;
+        }),
+      );
+      const end = await clippedBounds(exiting);
+      expect(end.x, name).toBeCloseTo(marker.x, 0);
+      expect(end.y, name).toBeCloseTo(marker.y, 0);
+      expect(end.width).toBeCloseTo(marker.width, 0);
+      expect(end.height).toBeCloseTo(marker.height, 0);
+      await exiting.evaluate((node) =>
+        node
+          .getAnimations({ subtree: true })
+          .forEach((animation) => animation.finish()),
+      );
+      await expect(exiting).toHaveCount(0);
+    }
+  });
+}
 
 test("never paints the saved marker at its default position while hydration is delayed", async ({
   page,

@@ -77,9 +77,9 @@ export function PinoteSurface({
     expand ? corner : false,
   );
   const clip = pinoteClip(
-    corner,
     cardRadius,
-    render ? floating.anchorSize : undefined,
+    floating.anchorCenter,
+    floating.anchorSize,
   );
   usePortalTheme(visible, rootRef, contentRef, portalRoot);
 

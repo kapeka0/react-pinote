@@ -84,6 +84,8 @@ Panels close with `cubic-bezier(.4,0,.2,1)` to spread the movement across the tr
 
 The `fade`, `scale` and `slide` presets animate both entry and exit by default. `slide` enters from 6 px below and returns there when closing. Use `animation="none"` to disable panel transitions.
 
+Expansions start and end at the marker's measured position and size. If the panel shifts to fit a small viewport, its animation stays anchored to the marker.
+
 Panels remain mounted during exit. Reopening reverses the current transition. Reduced motion removes scale, movement and clipping; panels fade over 200ms. Exiting content is inert and hidden from assistive technology.
 
 ## shadcn and dark mode
