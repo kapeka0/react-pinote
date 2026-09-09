@@ -82,7 +82,6 @@ These props also apply to `PinoteHighlight`.
 | `render`             | `PinoteRender`                                | Default marker            | Custom trigger element or callback. See below.                                      |
 | `header`             | `ReactNode`                                   | Author name               | Replaces the panel heading. Use `null` to omit it.                                  |
 | `leading`            | `ReactNode`                                   | Author avatar             | Replaces the panel's leading visual. Use `null` to omit it.                         |
-| `triggerAside`       | `ReactNode`                                   | Side avatar               | Custom decoration beside the trigger. Works without an author.                      |
 | `initialFocusRef`    | `RefObject<HTMLElement \| null>`              | First control, then panel | Visible, focusable target for explicit opening.                                     |
 | `onInteractOutside`  | `(event: PointerEvent \| FocusEvent) => void` | None                      | Reports outside pointer presses or focus leaving the attachment and panel.          |
 | `aria-label`         | `string`                                      | Based on author           | Accessible label for the trigger and panel.                                         |
@@ -130,15 +129,40 @@ For a callback, spread the supplied props, including `ref`, onto the button:
 </PinoteProvider>
 ```
 
-The callback receives `PinoteTriggerProps` and `PinoteTriggerState`. State contains `id`, `isOpen`, `isPreview`, `isDragging`, `open()` and `close()`. If you add styles or handlers in the callback, merge `props.style` and call the supplied handlers yourself. Do not call hooks directly in the callback; return a component that uses them.
+The callback receives `PinoteTriggerProps` and `PinoteTriggerState`. State contains `id`, `isOpen`, `isPreview`, `isDragging`, `open()` and `close()`. If you add styles or handlers in the callback, merge `props.style` and call the supplied handlers yourself. Do not call hooks directly in the callback; return a component that uses them. You can return `PinoteTrigger` instead of a plain button to reuse the default marker appearance.
 
-Both forms support preview, focus, pointer dragging for standalone markers, entrance animation and `variant="expand"`. Expansion measures the custom button's width and height. Set `entranceAnimation="none"` to own the entrance too. Default marker props such as `icon`, `triggerAside` and `authorPlacement` do not decorate a custom trigger; the author still supplies panel content.
+Both forms support preview, focus, pointer dragging for standalone markers, entrance animation and `variant="expand"`. Expansion measures the custom button's width and height. Set `entranceAnimation="none"` to own the entrance too. Default marker props such as `icon` and `authorPlacement` do not decorate a custom trigger; the author still supplies panel content.
 
-## triggerAside
+## PinoteTrigger
 
-Adds a non-interactive visual beside and partly behind the default marker. It replaces the side author avatar and works without `author`. For example, pass `triggerAside={<AvatarStack />}` for app-owned participant images.
+A reusable native button with the default marker's appearance. Pass it through `render` to connect it to a pinote:
 
-It is part of the same trigger button and shares its activation and hover behavior. Do not put buttons, inputs or links inside it. Use `--pinote-aside-offset` for the resting position and `--pinote-aside-reveal` for the extra hover movement. With `render`, put any decoration in your custom button instead.
+```tsx
+import { Pinote, PinoteProvider, PinoteTrigger } from "react-pinote";
+
+<PinoteProvider>
+  <Pinote
+    id="review"
+    aria-label="Read review"
+    content="Review this heading."
+    render={
+      <PinoteTrigger>
+        <span aria-hidden="true">?</span>
+      </PinoteTrigger>
+    }
+  >
+    <h1>Get started</h1>
+  </Pinote>
+</PinoteProvider>;
+```
+
+`PinoteTriggerProps` accepts native button props, `ref`, `className`, `style` and optional `children`. It defaults to `type="button"` and renders no icon or content unless supplied. Children are ordinary button content, so do not nest buttons, inputs or links. Supply an accessible name for empty or icon-only triggers.
+
+Inside `render`, it receives the pinote's orientation, interaction props and state attributes. It keeps the default color, size, shadow, touch target and hover scale. CSS variables inherited from the pinote still apply. Its ref points to the actual button and works with React 18 and 19.
+
+You can also use `render={(props, state) => <PinoteTrigger {...props}>...</PinoteTrigger>}`. With no containing pinote, `PinoteTrigger` is only a styled button; it does not open content or require a provider.
+
+Decoration layout belongs to your app. Put badges, images or overlapping elements inside `PinoteTrigger`, and style those children yourself.
 
 ## PinoteHighlight
 
@@ -159,7 +183,7 @@ function NoteHeader() {
 }
 ```
 
-Pass `header={<NoteHeader />}` to use this header. Keep `icon` and `triggerAside` non-interactive because they render inside the trigger button. In an expansion, `leading` moves between the marker center and its place in the panel.
+Pass `header={<NoteHeader />}` to use this header. Keep `icon` and custom trigger children non-interactive because they render inside the trigger button. In an expansion, `leading` moves between the marker center and its place in the panel.
 
 To focus an editor instead of the first control:
 

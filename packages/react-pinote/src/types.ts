@@ -7,7 +7,7 @@ import type {
 } from "react";
 import type { PinoteState } from "./use-pinote";
 
-/** Spread these props onto one native button or a component that forwards them. */
+/** Native button props for PinoteTrigger and the render callback. */
 export type PinoteTriggerProps = ComponentPropsWithRef<"button"> & {
   [key: `data-${string}`]: string | undefined;
 };
@@ -59,8 +59,6 @@ export type PinoteAppearance = {
   header?: ReactNode;
   /** Custom leading visual, replacing the content avatar. Pass null to omit it. */
   leading?: ReactNode;
-  /** Non-interactive visual beside the default marker, replacing the side avatar. */
-  triggerAside?: ReactNode;
   /** Optional custom focus target when explicitly opened. Hover never moves focus. */
   initialFocusRef?: RefObject<HTMLElement | null>;
   /** Place the supplied author avatar inside or beside the trigger. @default "inside" */

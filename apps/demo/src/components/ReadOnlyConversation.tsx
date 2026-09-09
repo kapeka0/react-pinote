@@ -1,11 +1,26 @@
+import { forwardRef } from "react";
 import type { CSSProperties } from "react";
-import { usePinote } from "react-pinote";
-import type { PinoteAuthor } from "react-pinote";
+import { PinoteTrigger, usePinote } from "react-pinote";
+import type { PinoteAuthor, PinoteTriggerProps } from "react-pinote";
 
 // This data model and conversation UI belong to the demo, not to react-pinote.
 export type DemoComment = { id: string; author: PinoteAuthor; text: string };
 
-export function ConversationAvatars({ comments }: { comments: DemoComment[] }) {
+export const ConversationTrigger = forwardRef<
+  HTMLButtonElement,
+  PinoteTriggerProps & { comments: DemoComment[] }
+>(function ConversationTrigger({ comments, ...props }, ref) {
+  return (
+    <PinoteTrigger {...props} ref={ref}>
+      <span className="demo-trigger-decoration" aria-hidden="true">
+        <ConversationAvatars comments={comments} />
+      </span>
+      <span className="demo-trigger-face" aria-hidden="true" />
+    </PinoteTrigger>
+  );
+});
+
+function ConversationAvatars({ comments }: { comments: DemoComment[] }) {
   return (
     <span
       className="demo-avatar-stack"
@@ -17,8 +32,7 @@ export function ConversationAvatars({ comments }: { comments: DemoComment[] }) {
       {comments.map((comment, index) => (
         <img
           key={comment.id}
-          className="pn-v"
-          data-slot="pinote-avatar"
+          className="demo-trigger-avatar"
           src={comment.author.avatarUrl}
           alt=""
           title={comment.author.name}

@@ -1018,7 +1018,7 @@ test("a side author overlaps the trigger and reveals three pixels on hover", asy
   expect(await avatar.evaluate((node) => node.getAnimations().length)).toBe(0);
 });
 
-test("supports app headers, focus targets and configurable side motion", async ({
+test("reuses the default trigger with app content, headers, focus targets and motion", async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
@@ -1032,14 +1032,16 @@ test("supports app headers, focus targets and configurable side motion", async (
   await trigger.evaluate((node) =>
     node.getAnimations().forEach((animation) => animation.finish()),
   );
-  const aside = trigger.locator('[data-slot="pinote-trigger-aside"]');
-  await expect(aside).toHaveCSS("left", "17px");
+  await expect(
+    trigger.locator('[data-testid="app-trigger-content"] svg'),
+  ).toHaveCount(1);
+  await expect(trigger).toHaveCSS("width", "25px");
+  await expect(trigger).toHaveCSS("border-bottom-left-radius", "0px");
   const finePointer = await page.evaluate(
     () => matchMedia("(hover: hover) and (pointer: fine)").matches,
   );
   await trigger.hover();
   await expect(trigger).toHaveCSS("scale", finePointer ? "0.9" : "none");
-  await expect(aside).toHaveCSS("translate", finePointer ? "7px" : "none");
   await trigger.click();
   const panel = page.getByRole("dialog", {
     name: "Composable pinote",

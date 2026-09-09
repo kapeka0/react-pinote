@@ -2,6 +2,7 @@ import "./styles.css";
 
 export { Pinote } from "./pinote";
 export type { PinoteProps } from "./pinote";
+export { PinoteTrigger } from "./pinote-trigger";
 export type {
   PinoteAnimation,
   PinoteAppearance,

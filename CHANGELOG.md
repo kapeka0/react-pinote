@@ -1,9 +1,15 @@
 # Changelog
 
+## 0.4.0
+
+- Export `PinoteTrigger`, a reusable native button with the default marker appearance and app-owned children. Use it through `render` to keep Pinote's interaction and focus behavior.
+- Remove `triggerAside`. Compose trigger decoration through `render`; the app owns its layout and animation.
+- Move the landing's conversation logos and overlap styling into its custom trigger, preserving the appearance and hover motion.
+
 ## 0.3.0
 
 - Add `PinoteProvider` for shared open state, animation and portal defaults without a DOM wrapper. Attachments work anywhere inside the provider.
-- Make `PinoteLayer` a coordinate and drag area. Move its former state and configuration props to `PinoteProvider`, and rename `usePinoteLayer` to `usePinoteProvider`. See the [migration notes](README.md#upgrading-from-02).
+- Make `PinoteLayer` a coordinate and drag area. Move its former state and configuration props to `PinoteProvider`, and rename `usePinoteLayer` to `usePinoteProvider`.
 - Add `render` for custom button elements and render callbacks. Preserve custom refs and handlers, keyboard focus, positioning and dragging without default marker styling. Expansions measure rectangular custom triggers.
 - Update the landing's photo trigger and document root setup, Tailwind, shadcn buttons and trigger decoration.
 

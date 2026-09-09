@@ -9,7 +9,7 @@ import {
 import { OneTimePinote } from "./OneTimePinote";
 import { InstallCommand } from "./InstallCommand";
 import {
-  ConversationAvatars,
+  ConversationTrigger,
   ReadOnlyConversation,
 } from "./ReadOnlyConversation";
 
@@ -184,8 +184,7 @@ export default function Demo({
           id="side-author"
           aria-label="Open pinote with a side author"
           author={comments[0]!.author}
-          authorPlacement="beside"
-          triggerAside={<ConversationAvatars comments={comments} />}
+          render={<ConversationTrigger comments={comments} />}
           draggable
           defaultPosition={{ x: 52, y: 72 }}
           orientation="top-left"

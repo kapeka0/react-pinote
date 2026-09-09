@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { PinoteTrigger } from "./pinote-trigger";
+import { PinoteMarker } from "./pinote-trigger";
 import { pinoteTriggerStyle } from "./pinote-trigger-style";
 import { pinoteClip, pinoteCorner, pinoteRadius } from "./pinote-shape";
 import { usePinotePosition } from "./use-pinote-position";
@@ -31,7 +31,6 @@ export function PinoteSurface({
   author,
   header,
   leading,
-  triggerAside,
   authorPlacement = "inside",
   icon,
   render,
@@ -345,13 +344,12 @@ export function PinoteSurface({
               : {}),
           }}
         >
-          <PinoteTrigger
+          <PinoteMarker
             {...interaction.triggerProps}
             {...(render ? interaction.hoverProps : {})}
             render={render}
             state={{ ...interaction.state, isDragging: dragging }}
             author={author}
-            triggerAside={triggerAside}
             authorPlacement={authorPlacement}
             icon={icon}
             aria-controls={isOpen ? contentId : undefined}
@@ -370,15 +368,13 @@ export function PinoteSurface({
             data-orientation={corner}
             data-entrance={context.ready ? entranceAnimation : "none"}
             data-draggable={draggable ? "" : undefined}
-            className={render ? "pn-r" : "pn-t"}
+            className={render ? "pn-r" : undefined}
             style={pinoteTriggerStyle({
               draggable,
               expand,
               hidden: expand && visible && entered,
               entering: !context.ready && entranceAnimation === "pop",
               highlight: highlight ? point : undefined,
-              custom: !!render,
-              corner,
             })}
             triggerRef={triggerRef}
             type="button"

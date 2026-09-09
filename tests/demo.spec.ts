@@ -481,7 +481,7 @@ test("the app-owned read-only conversation keeps extra avatars mostly hidden", a
         bounds.right - 3,
         bounds.y + bounds.height / 2,
       );
-      return front === node || Boolean(front?.closest(".pn-f"));
+      return front === node || Boolean(front?.closest(".demo-trigger-face"));
     });
   expect(await isTriggerInFront()).toBe(true);
   await trigger.hover();

@@ -32,8 +32,8 @@ The example below belongs inside a `PinoteLayer` within a `PinoteProvider`. The 
 | `--pinote-width`          | `280px`                        | Maximum panel width, also limited by the viewport. |
 | `--pinote-radius`         | shadcn `--radius`, then `12px` | Panel corner radii.                                |
 | `--pinote-accent`         | Current text color             | Highlight underline color.                         |
-| `--pinote-aside-offset`   | `9px`                          | Side decoration offset at rest.                    |
-| `--pinote-aside-reveal`   | `3px`                          | Extra side decoration movement on hover.           |
+| `--pinote-aside-offset`   | `9px`                          | Default side author avatar offset at rest.         |
+| `--pinote-aside-reveal`   | `3px`                          | Default side author avatar movement on hover.      |
 
 Panels size to their content up to the maximum width. Default triggers include a 10px touch target extension on each side; leave space between nearby controls. Custom triggers own their sizing and hit area.
 
@@ -59,7 +59,9 @@ import { Pinote, PinoteProvider } from "react-pinote";
 </PinoteProvider>;
 ```
 
-Default marker CSS does not apply to the custom button. The panel keeps its normal styles. `color` and the appearance variables still style the panel; they only style a custom trigger if your own CSS uses them. Keep `props.className` and `props.style` when using a render callback. See [custom triggers](api.md#custom-triggers).
+Default marker CSS does not apply to a plain custom button. Use the exported `PinoteTrigger` inside `render` to keep that appearance, including its CSS variables, hover scale and touch target. Your app styles any decoration in its children.
+
+The panel keeps its normal styles. `color` and the appearance variables still style the panel; a plain custom trigger must use those variables in its own CSS. Keep `props.className` and `props.style` when using a render callback. See [custom triggers](api.md#custom-triggers).
 
 ## Motion
 
@@ -142,7 +144,7 @@ Use `data-slot` selectors for individual elements. `className` applies to both t
 | Panel and body                   | `pinote-content`, `pinote-body`             |
 | Default author and avatar        | `pinote-author`, `pinote-avatar`            |
 | Custom header and leading visual | `pinote-header`, `pinote-leading`           |
-| Custom trigger content           | `pinote-icon`, `pinote-trigger-aside`       |
+| Default marker icon              | `pinote-icon`                               |
 
 Wrappers and triggers expose `data-state="open|closed"`. Panels expose `data-side`, `data-animation` and `data-leaving` during exit.
 

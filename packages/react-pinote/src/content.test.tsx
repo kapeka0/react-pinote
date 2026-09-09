@@ -6,6 +6,7 @@ import {
   Pinote,
   PinoteLayer,
   PinoteProvider,
+  PinoteTrigger,
   usePinote,
   usePinoteProvider,
 } from "./index";
@@ -184,7 +185,7 @@ describe("app-owned pinote content", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("lets apps override focus and supply arbitrary decoration beside the trigger", async () => {
+  it("lets apps override focus and supply their own trigger content", async () => {
     const user = userEvent.setup();
     function App() {
       const focus = useRef<HTMLButtonElement>(null);
@@ -194,7 +195,11 @@ describe("app-owned pinote content", () => {
             <Pinote
               id="custom"
               position="center"
-              triggerAside={<span>App badge</span>}
+              render={
+                <PinoteTrigger>
+                  <span>App badge</span>
+                </PinoteTrigger>
+              }
               initialFocusRef={focus}
               content={
                 <>
@@ -209,7 +214,7 @@ describe("app-owned pinote content", () => {
     }
     render(<App />);
     expect(screen.getByText("App badge")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Open pinote" }));
+    await user.click(screen.getByRole("button", { name: "App badge" }));
     await waitFor(() =>
       expect(
         screen.getByRole("button", { name: "Chosen target" }),

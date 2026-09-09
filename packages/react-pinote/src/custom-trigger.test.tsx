@@ -3,7 +3,7 @@ import type { ComponentPropsWithoutRef } from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, it, vi } from "vitest";
-import { Pinote, PinoteProvider } from "./index";
+import { Pinote, PinoteProvider, PinoteTrigger } from "./index";
 
 const AppButton = forwardRef<
   HTMLButtonElement,
@@ -21,7 +21,6 @@ it("composes a custom component's ref, events and styles with activation and foc
         preview={false}
         author={{ name: "Ada", avatarUrl: "/ada.png" }}
         icon="ignored"
-        triggerAside="ignored aside"
         render={
           <AppButton
             ref={ref}
@@ -86,6 +85,58 @@ it("allows custom handlers to cancel previews and activation", async () => {
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 });
 
+it("reuses the default trigger with app children, composed refs and keyboard activation", async () => {
+  const user = userEvent.setup();
+  const ref = createRef<HTMLButtonElement>();
+  const click = vi.fn();
+  render(
+    <PinoteProvider>
+      <Pinote
+        id="reused"
+        preview={false}
+        orientation="top-right"
+        content={<input aria-label="Draft" />}
+        render={
+          <PinoteTrigger ref={ref} onClick={click}>
+            <span>Read note</span>
+          </PinoteTrigger>
+        }
+      >
+        <h1>Target</h1>
+      </Pinote>
+    </PinoteProvider>,
+  );
+  const button = screen.getByRole("button", { name: "Read note" });
+  expect(ref.current).toBe(button);
+  expect(screen.getAllByRole("button")).toHaveLength(1);
+  expect(button).toHaveClass("pn-t");
+  expect(button).toHaveAttribute("data-orientation", "top-right");
+  expect(button.style.borderRadius).toContain("50% 0 50% 50%");
+  await user.tab();
+  await user.keyboard("{Enter}");
+  expect(click).toHaveBeenCalledOnce();
+  await waitFor(() => expect(screen.getByRole("textbox")).toHaveFocus());
+  await user.keyboard("{Escape}");
+  expect(button).toHaveFocus();
+});
+
+it("renders the exported trigger as a plain button without a provider", () => {
+  const ref = createRef<HTMLButtonElement>();
+  render(
+    <PinoteTrigger
+      ref={ref}
+      aria-label="Plain marker"
+      style={{ borderRadius: 8 }}
+    />,
+  );
+  const button = screen.getByRole("button", { name: "Plain marker" });
+  expect(button).toBeEmptyDOMElement();
+  expect(button).toHaveStyle({ borderRadius: "8px" });
+  expect(button).toHaveAttribute("type", "button");
+  expect(button).not.toHaveAttribute("aria-haspopup");
+  expect(ref.current).toBe(button);
+});
+
 it("does not preview a disabled custom button", async () => {
   const user = userEvent.setup();
   render(
@@ -111,13 +162,13 @@ it("passes preview and open state to a render callback", async () => {
         id="callback"
         content="Callback content"
         render={(props, state) => (
-          <button
+          <PinoteTrigger
             {...props}
             className={`${props.className} callback`}
             data-testid="callback"
           >
             {state.isOpen ? (state.isPreview ? "Preview" : "Open") : "Closed"}
-          </button>
+          </PinoteTrigger>
         )}
       >
         <span>Target</span>

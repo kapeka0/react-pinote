@@ -242,16 +242,37 @@ html [data-slot="pinote-content"] {
   position: relative;
   height: var(--pinote-size, 25px);
 }
+.demo-trigger-decoration {
+  position: absolute;
+  left: 9px;
+  top: 0;
+  isolation: isolate;
+}
+.demo-trigger-face {
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  border-radius: inherit;
+}
 .demo-avatar-stack > img {
   position: absolute;
   top: 0;
   width: var(--pinote-size, 25px);
   height: 100%;
-  outline: 1px solid var(--pn-s);
+  border-radius: 50%;
+  object-fit: cover;
+  outline: 1px solid var(--pinote-background, #2c2c2c);
 }
 @media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
   .demo-avatar-stack > img {
     transition: translate var(--pinote-duration, 140ms);
+  }
+  .demo-trigger-decoration {
+    transition: translate var(--pinote-duration, 140ms)
+      var(--pinote-easing, cubic-bezier(0.2, 0, 0, 1));
+  }
+  [data-slot="pinote-trigger"]:hover .demo-trigger-decoration {
+    translate: 3px;
   }
   [data-slot="pinote-trigger"]:hover .demo-avatar-stack > img {
     translate: var(--demo-avatar-reveal);

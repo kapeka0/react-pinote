@@ -5,6 +5,7 @@ import {
   PinoteHighlight,
   PinoteLayer,
   PinoteProvider,
+  PinoteTrigger,
   getPinotePosition,
 } from "../dist/index.js";
 import type { PinotePlacement, PinotePosition } from "../dist/index.js";
@@ -29,7 +30,11 @@ function ComposablePinote() {
           aria-label="Composable pinote"
           position="center"
           variant="expand"
-          icon={logo}
+          render={
+            <PinoteTrigger>
+              <span data-testid="app-trigger-content">{logo}</span>
+            </PinoteTrigger>
+          }
           leading={logo}
           header={
             <div>
@@ -39,11 +44,8 @@ function ComposablePinote() {
               </button>
             </div>
           }
-          triggerAside={<span aria-hidden="true">App badge</span>}
           initialFocusRef={editor}
           style={{
-            "--pinote-aside-offset": "17px",
-            "--pinote-aside-reveal": "7px",
             "--pinote-hover-scale": "0.9",
             "--pinote-entrance-delay": "300ms",
             "--pinote-entrance-duration": "600ms",

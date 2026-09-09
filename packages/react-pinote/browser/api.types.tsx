@@ -3,6 +3,7 @@ import {
   PinoteHighlight,
   PinoteProvider,
   PinoteLayer,
+  PinoteTrigger,
 } from "../dist/index.js";
 import type {
   PinoteColor,
@@ -66,9 +67,9 @@ export const providerAndRender = (
         position="center"
         content="Callback"
         render={(props, state) => (
-          <button {...props}>
+          <PinoteTrigger {...props}>
             {state.isOpen ? "Open" : state.isDragging ? "Dragging" : "Closed"}
-          </button>
+          </PinoteTrigger>
         )}
       />
     </PinoteLayer>
@@ -77,6 +78,15 @@ export const providerAndRender = (
 export const wrongRender = (
   // @ts-expect-error A render trigger must be a React element or render callback.
   <Pinote id="bad-render" position="center" content="Bad" render="Comment" />
+);
+export const removedAside = (
+  <Pinote
+    id="old-aside"
+    position="center"
+    content="Old"
+    // @ts-expect-error Compose trigger decoration through render instead.
+    triggerAside={<span />}
+  />
 );
 // @ts-expect-error Open state belongs to PinoteProvider, not the coordinate area.
 export const layerWithState = <PinoteLayer openId="legacy" />;

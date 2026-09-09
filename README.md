@@ -108,9 +108,32 @@ import { Pinote, PinoteProvider } from "react-pinote";
 
 For state-based rendering, use `render={(props, state) => <button {...props}>...</button>}`. See [the render contract](docs/api.md#custom-triggers) for props, state and event composition.
 
+To keep the default marker appearance, use the exported `PinoteTrigger`. It accepts normal button props and your own non-interactive children:
+
+```tsx
+import { Pinote, PinoteProvider, PinoteTrigger } from "react-pinote";
+
+<PinoteProvider>
+  <Pinote
+    id="review"
+    aria-label="Read review"
+    content="Could this heading be shorter?"
+    render={
+      <PinoteTrigger>
+        <span aria-hidden="true">?</span>
+      </PinoteTrigger>
+    }
+  >
+    <h1>Get started</h1>
+  </Pinote>
+</PinoteProvider>;
+```
+
+An empty `<PinoteTrigger />` has no icon. Compose any badges, images or overlapping decoration inside it with your app's components and CSS.
+
 ## Use your own content
 
-`content`, `header` and `leading` accept your components. `icon` and `triggerAside` add non-interactive visuals to the default marker. The optional `author` prop supplies a name and photo without a custom layout. A custom `render` owns its entire trigger, including any decoration.
+`content`, `header` and `leading` accept your components. `icon` adds an optional visual to the default marker. The optional `author` prop supplies a name and photo without a custom layout. A custom `render` owns its entire trigger, including any decoration.
 
 `usePinote()` gives content and visual slots access to `isPreview`, `open()` and `close()`. Your app owns comment data, editing permissions and storage. See [composition and focus](docs/api.md#composition-and-focus).
 
@@ -122,12 +145,6 @@ For state-based rendering, use `render={(props, state) => <button {...props}>...
 - Tab moves through the content without trapping focus. Escape restores focus to the trigger when focus was inside.
 
 Panels open after hydration and use a portal. They stay within the viewport. Motion respects the user's reduced-motion preference.
-
-## Upgrading from 0.2
-
-Wrap existing layers with `PinoteProvider`. Move `openId`, `defaultOpenId`, `onOpenChange`, `animation`, `portal` and `portalContainer` from the layer to the provider. Keep `className` and `style` on the layer. Rename `usePinoteLayer()` to `usePinoteProvider()`.
-
-For attachments only, replace `PinoteLayer` with `PinoteProvider`. If the old layer supplied layout or theme styles, keep it or move those styles onto an app-owned element.
 
 ## License
 
