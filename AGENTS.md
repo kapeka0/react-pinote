@@ -10,9 +10,11 @@ Document the current API. While the library has no users, add upgrade or migrati
 
 # Commits and releases
 
-Keep changes local and uncommitted until the user requests a commit or upload. For uploads, use a short-lived `codex/` branch and a focused PR into `main`. Follow [the contribution workflow](CONTRIBUTING.md#pull-requests), including review, passing checks and squash merges. A request to upload an already approved change authorizes that workflow.
+Keep changes local and uncommitted until the user requests a commit or upload. For authorized uploads, commit and push small, low-risk changes directly to `main`, including documentation, copy, minor styling and simple fixes. Review the diff and run checks appropriate to the change before pushing.
 
-Use issues for unresolved bugs and substantial proposals; small fixes can go directly to a PR. Record pending changes under `Unreleased` in `CHANGELOG.md`, keeping the published package version unchanged.
+Reserve short-lived `codex/` branches and PRs for substantial features, important bug fixes, public API changes and broad refactors, or when the user or branch protection requires a PR. Follow [the contribution workflow](CONTRIBUTING.md#commits-and-pull-requests), including review, passing checks and squash merges. A request to upload an already approved change authorizes the applicable workflow.
+
+Use issues for unresolved bugs and substantial proposals; small changes do not need an issue. Record pending user-visible changes under `Unreleased` in `CHANGELOG.md`, keeping the published package version unchanged.
 
 Create or publish a release only after explicit user confirmation. Version bumps, tags, pushes and deployments are not automatic follow-ups to edits.
 

@@ -6,15 +6,17 @@ Pinote provides annotation UI, positioning and interaction. Apps own their data,
 
 Report bugs with a minimal reproduction, expected and actual behavior, and the package, React and browser versions. For layout or motion bugs, include the viewport size and a recording if possible.
 
-Open an issue before working on a substantial feature or API change. Explain the use case and why the current API cannot support it. Small fixes and documentation changes can go directly to a pull request.
+Open an issue before working on a substantial feature or API change. Explain the use case and why the current API cannot support it. Small fixes and documentation changes do not need an issue.
 
-## Pull requests
+## Commits and pull requests
 
-Create a short-lived branch from `main`. Keep each PR focused on one change, link an existing issue when relevant, and describe the problem, resulting behavior and validation.
+Maintainers commit and push small, low-risk changes directly to `main` after reviewing the diff and running appropriate checks. This includes documentation, copy, minor styling and simple fixes.
 
-Update the relevant documentation and record user-visible changes under `Unreleased` in `CHANGELOG.md`. Add a regression test for a bug when it can exercise the reported behavior. Keep unrelated cleanup in another PR.
+Use PRs for substantial features, important bug fixes, public API changes and broad refactors, or when branch protection requires them. Contributors without write access submit changes through a PR.
 
-PRs are reviewed and squash-merged after checks pass. Merging a PR does not publish an npm release.
+For a PR, create a short-lived branch from `main`. Keep it focused on one change, link an existing issue when relevant, and describe the problem, resulting behavior and validation. PRs are reviewed and squash-merged after checks pass.
+
+For either workflow, update the relevant documentation and record user-visible changes under `Unreleased` in `CHANGELOG.md`. Add a regression test for a bug when it can exercise the reported behavior. Keep unrelated cleanup in a separate change. Pushing commits or merging a PR does not publish an npm release.
 
 ## Local development
 
@@ -44,7 +46,7 @@ Browser tests cover React 18 and 19 on Chromium, including mobile emulation. CSS
 
 The size check limits JavaScript to 7,000 bytes gzip and CSS to 2,100 bytes minified, excluding React and source maps. Avoid adding runtime dependencies.
 
-When a change affects the landing, run `pnpm og` and inspect `apps/demo/public/og-image.png`. Include any image changes in the PR. See [landing maintenance](apps/demo/README.md#open-graph-image).
+When a change affects the landing, run `pnpm og` and inspect `apps/demo/public/og-image.png`. Include any image changes in the same commit. See [landing maintenance](apps/demo/README.md#open-graph-image).
 
 ## Local package
 
