@@ -35,3 +35,38 @@ pnpm --filter react-pinote pack
 ```
 
 The prepack step builds the library and copies the README, license and documentation into the package. Install the resulting `.tgz` in a React app to test it before publication.
+
+## Publishing
+
+Use npm 11.15 or later. The first version needs a manual `npm publish` because npm requires the package to exist before adding a trusted publisher:
+
+```sh
+npm login
+cd packages/react-pinote
+npm publish --access public
+npm trust github react-pinote --repo kapeka0/react-pinote --file publish.yml --allow-publish --yes
+```
+
+npm requires two-factor authentication for the trust setup. Later releases use `.github/workflows/publish.yml` with OIDC. No npm token is stored in GitHub.
+
+For each release, update the package version and changelog, commit the changes, then push a matching tag:
+
+```sh
+git tag -a v0.1.1 -m "Release 0.1.1"
+git push origin main v0.1.1
+```
+
+The workflow checks the project and verifies that the tag matches `package.json` before publishing. npm generates provenance for these GitHub Actions releases. The initial manual release does not have provenance.
+
+See [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/) for the registry requirements.
+
+## Landing deployment
+
+The Vercel project is `react-pinote` in `kape-team`, on the existing Pro plan. It builds from the repository root using `vercel.json` and publishes `apps/demo/dist`. GitHub pushes to `main` deploy to production.
+
+To deploy with the CLI:
+
+```sh
+vercel link --yes --scope kape-team --project react-pinote
+vercel deploy --prod --scope kape-team
+```

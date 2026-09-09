@@ -1,0 +1,15 @@
+.agents/
+.claude/
+.vercel/
+.env*
+node_modules/
+**/node_modules/
+**/dist/
+**/.astro/
+skills-lock.json
+plans/
+*.tgz
+playwright-report/
+test-results/
+apps/demo/src/assets/maya.png
+apps/demo/src/assets/pexels-*.jpg

@@ -11,3 +11,4 @@ test-results/
 packages/react-pinote/README.md
 packages/react-pinote/LICENSE
 packages/react-pinote/docs/
+.env*
