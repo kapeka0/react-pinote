@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Clarify the limits of saved coordinates and the app's responsibility for persistence.
+
 ## 0.4.1
 
 - Keep the pointed corner fixed throughout expansion on small screens. Fit content to the available space and let automatic orientation choose the other horizontal side when needed.

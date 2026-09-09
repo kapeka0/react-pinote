@@ -79,6 +79,8 @@ type PinotePlacement =
 
 Supply finite percentages from 0 to 100. The marker's center sits at that point. Attachments measure their wrapper; standalone markers measure their layer. Positions use physical edges, including in right-to-left layouts. Keep overflow visible if markers sit on an edge.
 
+Saved coordinates preserve a relative position and may point to a different element after a layout change. To associate a note with a specific element, wrap that element in `Pinote`. Your app handles persistence and what happens when the element is no longer available.
+
 Dragging clamps coordinates to 0–100. Cancellation restores the starting position; clicks and cancelled moves do not call `onDragEnd`. Dragging closes the panel and pauses hover previews until the pointer leaves. It has no keyboard shortcuts.
 
 ### Appearance and behavior
