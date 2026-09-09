@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Add a copy button to the landing's installation command, with animated clipboard and checkmark icons.
+- Smooth the GitHub link's hover color transition and open the repository in a new tab.
+
 ## 0.1.1
 
 - Smooth the expansion's closing curve while preserving its opening animation.

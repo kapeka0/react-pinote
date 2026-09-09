@@ -11,6 +11,10 @@ pnpm dev
 
 The Astro demo runs at `http://127.0.0.1:4321`. Library changes rebuild through the watch process.
 
+The landing uses the local `react-pinote` workspace package, so each deployment includes the library from the same commit. It does not fetch the latest npm release.
+
+Its installation button copies `npm i react-pinote` and shows a checkmark for two seconds after a successful copy. If clipboard access fails, the command stays selectable and a message explains how to copy it manually. Reduced motion uses a crossfade for the icons.
+
 ## Checks
 
 ```sh

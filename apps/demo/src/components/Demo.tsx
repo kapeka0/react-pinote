@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { PinotePosition } from "react-pinote";
 import { Pinote, PinoteHighlight, PinoteLayer } from "react-pinote";
 import { OneTimePinote } from "./OneTimePinote";
+import { InstallCommand } from "./InstallCommand";
 import {
   ConversationAvatars,
   ReadOnlyConversation,
@@ -93,12 +94,14 @@ export default function Demo({
         <p className="description">
           Lightweight annotations for your React UI.
         </p>
-        <pre className="install-command">
-          <code>npm i react-pinote</code>
-        </pre>
+        <InstallCommand />
       </div>
       <footer className="demo-footer">
-        <a href="https://github.com/kapeka0/react-pinote">
+        <a
+          href="https://github.com/kapeka0/react-pinote"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <svg
             viewBox="0 0 24 24"
             width="20"

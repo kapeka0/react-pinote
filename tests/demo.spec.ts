@@ -144,7 +144,7 @@ test("the static demo hydrates with automatic styles and working pinotes", async
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
   await expect(page.locator("h1")).toContainText("react-pinote");
-  await expect(page.getByRole("button")).toHaveCount(6);
+  await expect(page.locator('[data-slot="pinote-trigger"]')).toHaveCount(6);
   const trigger = page.getByRole("button", {
     name: "Open anonymous pinote",
     exact: true,
@@ -178,6 +178,76 @@ test("the static demo hydrates with automatic styles and working pinotes", async
     "rgb(248, 229, 164)",
   );
   expect(errors).toEqual([]);
+});
+
+test("copies the install command and resets its confirmation after the latest copy", async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.clock.install();
+  await page.goto("/");
+  const copy = page.getByRole("button", { name: "Copy install command" });
+  const initialBox = await page.locator(".install-command").boundingBox();
+  await copy.click();
+  await expect(page.getByRole("status")).toHaveText("Copied to clipboard.");
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+    "npm i react-pinote",
+  );
+  await expect(copy.locator(".copy-check")).toHaveCSS("opacity", "1");
+  expect(await page.locator(".install-command").boundingBox()).toEqual(
+    initialBox,
+  );
+  await page.clock.fastForward(1200);
+  await copy.click();
+  await page.clock.fastForward(1200);
+  await expect(page.getByRole("status")).toHaveText("Copied to clipboard.");
+  await page.clock.fastForward(1000);
+  await expect(copy.locator(".copy-clipboard")).toHaveCSS("opacity", "1");
+  await expect(page.getByRole("status")).toBeEmpty();
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await copy.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("status")).toHaveText("Copied to clipboard.");
+  await expect(copy.locator(".copy-check")).toHaveCSS("transform", "none");
+  await expect(copy.locator(".copy-check")).toHaveCSS("filter", "none");
+  await expect(copy).toBeFocused();
+  await expect(page.getByRole("link", { name: "GitHub" })).toHaveAttribute(
+    "target",
+    "_blank",
+  );
+});
+
+test("reports a clipboard failure without showing success and allows retrying", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    let attempts = 0;
+    Object.defineProperty(navigator, "clipboard", {
+      value: {
+        writeText: () =>
+          ++attempts === 1
+            ? Promise.reject(
+                new DOMException("Permission denied", "NotAllowedError"),
+              )
+            : Promise.resolve(),
+      },
+    });
+  });
+  await page.goto("/");
+  const copy = page.getByRole("button", { name: "Copy install command" });
+  await copy.click();
+  await expect(page.getByRole("status")).toHaveText(
+    "Couldn't copy. Select the command and copy it manually.",
+  );
+  await expect(page.getByRole("status")).toBeVisible();
+  await expect(copy.locator(".copy-check")).toHaveCSS("opacity", "0");
+  await expect(page.locator(".install-command code")).toHaveText(
+    "npm i react-pinote",
+  );
+  await copy.click();
+  await expect(page.getByRole("status")).toHaveText("Copied to clipboard.");
 });
 
 test("small screens keep cards inside the viewport and reduced motion stays still", async ({
@@ -374,7 +444,7 @@ test("the app-owned read-only conversation keeps extra avatars mostly hidden", a
   page,
 }) => {
   await page.goto("/");
-  await expect(page.getByRole("button")).toHaveCount(6);
+  await expect(page.locator('[data-slot="pinote-trigger"]')).toHaveCount(6);
   await expect(page.getByRole("toolbar")).toHaveCount(0);
   await expect(page.locator('[data-slot="pinote-trigger"] svg')).toHaveCount(0);
   await expect(page.locator('[data-slot="pinote-icon"]')).toHaveText([
