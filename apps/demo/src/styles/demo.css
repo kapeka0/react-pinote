@@ -114,8 +114,8 @@ body {
   transition: opacity 150ms ease-out;
 }
 .copy-command svg {
-  width: 17px;
-  height: 17px;
+  width: 16px;
+  height: 16px;
 }
 .copy-command[data-copied="false"] .copy-clipboard,
 .copy-command[data-copied="true"] .copy-check {
@@ -184,6 +184,26 @@ body {
 }
 html [data-slot="pinote-content"] {
   font-family: inherit;
+}
+.photo-pinote[data-slot="pinote-content"] {
+  padding: 6px;
+}
+.demo-photo {
+  width: 248px;
+  max-width: 100%;
+  margin: 0;
+}
+.demo-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 3px;
+  outline: 1px solid oklch(0 0 0 / 0.1);
+  outline-offset: -1px;
+}
+.demo-photo figcaption {
+  padding: 10px 6px 6px;
+  font-size: 0.8125rem;
 }
 ::selection {
   background: #f8e5a4;

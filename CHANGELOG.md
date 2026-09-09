@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Add a warm, sunlit photograph to the landing's yellow pinote, optimized as WebP.
+- Reduce the landing's clipboard and checkmark icons by one pixel.
+
 ## 0.1.2
 
 - Add a copy button to the landing's installation command, with animated clipboard and checkmark icons.

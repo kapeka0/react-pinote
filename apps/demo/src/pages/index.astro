@@ -2,6 +2,7 @@
 import Demo from "../components/Demo";
 import { getImage } from "astro:assets";
 import kapekaPhoto from "../assets/kapeka.jpg";
+import sunlitCurtain from "../assets/sunlit-curtain.jpg";
 import codexLogo from "../assets/codex.svg?url&no-inline";
 import claudeLogo from "../assets/claude.svg?url&no-inline";
 import kimiLogo from "../assets/kimi.svg?url&no-inline";
@@ -18,6 +19,14 @@ const kapeka = await getImage({
   width: 96,
   height: 96,
   format: "webp",
+});
+const curtain = await getImage({
+  src: sunlitCurtain,
+  width: 496,
+  height: 372,
+  fit: "cover",
+  format: "webp",
+  quality: 80,
 });
 ---
 
@@ -58,6 +67,7 @@ const kapeka = await getImage({
     <main>
       <Demo
         kapekaAvatarUrl={kapeka.src}
+        photoUrl={curtain.src}
         codexAvatarUrl={codexLogo}
         claudeAvatarUrl={claudeLogo}
         kimiAvatarUrl={kimiLogo}

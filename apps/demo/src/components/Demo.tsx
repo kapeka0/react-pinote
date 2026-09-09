@@ -20,11 +20,13 @@ function savePosition(position: PinotePosition) {
 
 export default function Demo({
   kapekaAvatarUrl,
+  photoUrl,
   codexAvatarUrl,
   claudeAvatarUrl,
   kimiAvatarUrl,
 }: {
   kapekaAvatarUrl: string;
+  photoUrl: string;
   codexAvatarUrl: string;
   claudeAvatarUrl: string;
   kimiAvatarUrl: string;
@@ -150,6 +152,7 @@ export default function Demo({
       />
       <Pinote
         id="custom"
+        className="photo-pinote"
         aria-label="Open custom style pinote"
         animation="none"
         icon={null}
@@ -161,7 +164,19 @@ export default function Demo({
           "--pinote-trigger-radius": "9px",
           "--pinote-radius": "9px",
         }}
-        content="A different color, a different shape. Still a pinote."
+        content={
+          <figure className="demo-photo">
+            <img
+              src={photoUrl}
+              alt="Sunlight casting window shadows on a golden curtain."
+              width="248"
+              height="186"
+              decoding="async"
+              draggable={false}
+            />
+            <figcaption>Afternoon light.</figcaption>
+          </figure>
+        }
       />
       <Pinote
         id="side-author"
