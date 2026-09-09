@@ -4,6 +4,7 @@
 
 - Add a warm, sunlit photograph to the landing's yellow pinote, optimized as WebP.
 - Reduce the landing's clipboard and checkmark icons by one pixel.
+- Animate the landing's photo pinote with the existing slide preset and update the LLM conversation.
 
 ## 0.1.2
 

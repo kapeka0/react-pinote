@@ -508,7 +508,7 @@ test("the app-owned read-only conversation keeps extra avatars mostly hidden", a
   const panel = page.getByRole("dialog", {
     name: "Open pinote with a side author",
   });
-  await expect(panel).toContainText("We vibecoded this library.");
+  await expect(panel).toContainText("I found the last bug.");
   await expect(panel).not.toContainText("Claude");
   await expect(panel).not.toContainText("Kimi");
   await trigger.click();

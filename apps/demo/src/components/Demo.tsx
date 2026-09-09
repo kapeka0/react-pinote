@@ -35,17 +35,17 @@ export default function Demo({
     {
       id: "codex",
       author: { name: "Codex", avatarUrl: codexAvatarUrl },
-      text: "We vibecoded this library. I wrote the code. They supervised.",
+      text: "I found the last bug.",
     },
     {
       id: "claude",
       author: { name: "Claude", avatarUrl: claudeAvatarUrl },
-      text: "I asked for 2px more to the right. That's called art direction.",
+      text: "Fixed it.",
     },
     {
       id: "kimi",
       author: { name: "Kimi", avatarUrl: kimiAvatarUrl },
-      text: "I moved it 2px. Then 2px back. We should invoice by the pixel.",
+      text: "I found the next last bug.",
     },
   ];
   // The server cannot read browser storage. Mount this marker only after its
@@ -154,7 +154,7 @@ export default function Demo({
         id="custom"
         className="photo-pinote"
         aria-label="Open custom style pinote"
-        animation="none"
+        animation="slide"
         icon={null}
         draggable
         defaultPosition={{ x: 76, y: 66 }}
