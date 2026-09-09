@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.2
 
 - Add a copy button to the landing's installation command, with animated clipboard and checkmark icons.
 - Smooth the GitHub link's hover color transition and open the repository in a new tab.
